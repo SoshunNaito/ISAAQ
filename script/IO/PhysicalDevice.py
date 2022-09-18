@@ -79,10 +79,10 @@ def ExportCost(filepath: str, deviceCost: PhysicalDeviceCost):
 		f.writelines(S)
 
 def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: bool) -> PhysicalDeviceCost:
-	folderpath_initial = os.path.join(os.path.dirname(__file__), "../../../data/device_cost/initial/" + deviceCostName)
-	folderpath_learned = os.path.join(os.path.dirname(__file__), "../../../data/device_cost/learned/" + deviceCostName)
-	filepath_initial = os.path.join(folderpath_initial, "cost_tables.txt")
-	filepath_learned = os.path.join(folderpath_learned, "cost_tables.txt")
+	folderPath_initial = os.path.join(os.path.dirname(__file__), "../../../data/device_cost/initial/" + deviceCostName)
+	folderPath_learned = os.path.join(os.path.dirname(__file__), "../../../data/device_cost/learned/" + deviceCostName)
+	filepath_initial = os.path.join(folderPath_initial, "cost_tables.txt")
+	filepath_learned = os.path.join(folderPath_learned, "cost_tables.txt")
 
 	if(refreshCostTable == False):
 		if(os.path.isfile(filepath_learned)):
@@ -90,8 +90,8 @@ def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: boo
 		elif(os.path.isfile(filepath_initial)):
 			return ImportCost(deviceCostName, filepath_initial)
 
-	os.makedirs(folderpath_initial, exist_ok = True)
-	os.makedirs(folderpath_learned, exist_ok = True)
+	os.makedirs(folderPath_initial, exist_ok = True)
+	os.makedirs(folderPath_learned, exist_ok = True)
 	try:
 		graph = ImportGraph(deviceGraphName)
 		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, ~refreshCostTable, -1)

@@ -35,12 +35,12 @@ def GenerateInitialCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderpath = os.path.join(os.path.dirname(__file__), "../../../data/log/swap/initial/" + deviceCostName)
-	cacheFolderPath = os.path.join(folderpath, str(config))
-	os.makedirs(folderpath, exist_ok = True)
+	folderPath = os.path.join(os.path.dirname(__file__), "../../../data/log/swap/initial/" + deviceCostName)
+	cacheFolderPath = os.path.join(folderPath, str(config))
+	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)
 
-	filepath_log = folderpath + "/log.txt"
+	filepath_log = folderPath + "/log.txt"
 	filepath_cache = os.path.join(cacheFolderPath, "cache.txt")
 	filepath_cache_config = os.path.join(cacheFolderPath, "config.txt")
 
@@ -66,12 +66,12 @@ def GenerateActualCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderpath = os.path.join(os.path.dirname(__file__), "../../../data/log/swap/actual/" + deviceCostName)
-	cacheFolderPath = os.path.join(folderpath, str(config))
-	os.makedirs(folderpath, exist_ok = True)
+	folderPath = os.path.join(os.path.dirname(__file__), "../../../data/log/swap/actual/" + deviceCostName)
+	cacheFolderPath = os.path.join(folderPath, str(config))
+	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)
 
-	filepath_log = folderpath + "/log.txt"
+	filepath_log = folderPath + "/log.txt"
 	filepath_cache = os.path.join(cacheFolderPath, "cache.txt")
 	filepath_cache_config = os.path.join(cacheFolderPath, "config.txt")
 

@@ -38,9 +38,10 @@ def ConstructCircuit(
 
 			gates = Routing(physicalToPhysical, mapping.physicalDevice.graph, cache)
 			for g in gates: circuit_dst.AddGate(g)
-			
-			log_str = str(len(gates)) + ": " + " ".join([str(n) for n in physicalToPhysical]) + "\n"
-			logs.append(log_str)
+
+			if(addRoutingLog == True):
+				log_str = str(len(gates)) + ": " + " ".join([str(n) for n in physicalToPhysical]) + "\n"
+				logs.append(log_str)
 
 		# placing gates
 		layer = mapping.layers[l]
@@ -48,6 +49,7 @@ def ConstructCircuit(
 		for g in gates: circuit_dst.AddGate(g)
 
 	if(addRoutingLog == True):
+		os.makedirs(folderPath, exist_ok = True)
 		with open(logFilePath, "a") as f:
 			f.writelines(logs)
 
