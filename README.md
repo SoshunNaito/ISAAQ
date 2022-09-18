@@ -1,2 +1,2 @@
-# pyISAAQ
+# ISAAQ
 Ising Machine-Assisted Quantum Compiler
