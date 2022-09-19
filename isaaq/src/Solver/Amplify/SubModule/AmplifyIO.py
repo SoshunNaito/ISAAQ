@@ -1,9 +1,4 @@
 import os
-from socket import timeout
-import sys
-from time import time
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 
 from isaaq.src.Common.QubitMapping import *
 from isaaq.src.Common.QubitMappingProblem import *

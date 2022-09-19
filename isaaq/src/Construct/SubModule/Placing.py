@@ -1,15 +1,9 @@
-from nis import match
-import os
-import sys
-
 import networkx as nx
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from enum import Enum
+from typing import Union
 
 from isaaq.src.Common.QuantumGates import *
 from isaaq.src.Common.PhysicalDevice import *
-
-from enum import *
 from isaaq.src.Construct.SubModule.RemoteCX import *
 
 class QubitStatus(Enum):

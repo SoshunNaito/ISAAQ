@@ -1,19 +1,16 @@
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+import subprocess
+from concurrent.futures import *
 
 from isaaq.src.Common.QubitMapping import *
 from isaaq.src.Common.QubitMappingProblem import *
 from isaaq.src.Solver.BaseQAPSolver import *
 from isaaq.src.IO.QubitMappingProblem import *
 from isaaq.src.IO.QubitMappingResult import *
-from .AmplifySettings import *
+from isaaq.src.Solver.Amplify.AmplifySettings import *
 
-import subprocess
-from concurrent.futures import *
-from .SubModule.AmplifyRunner import *
-from .SubModule.AmplifyIO import *
+from isaaq.src.Solver.Amplify.SubModule.AmplifyRunner import *
+from isaaq.src.Solver.Amplify.SubModule.AmplifyIO import *
 
 def CallAmplifyRunner(n: int, id: str) -> int:
 	subRoutineFilePath = os.path.join(os.path.dirname(__file__), "SubModule/AmplifyRunner.py")

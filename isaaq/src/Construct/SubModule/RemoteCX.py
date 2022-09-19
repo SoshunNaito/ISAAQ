@@ -1,13 +1,7 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from typing import Tuple
 
 from isaaq.src.Common.QuantumGates import *
 from isaaq.src.Common.PhysicalDevice import *
-from queue import *
-import networkx as nx
-from typing import Tuple
 
 def GetParentNodes(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> Tuple[list[int], list[int]]:
 	parent: list[int] = [-1] * len(srcList)
@@ -29,7 +23,7 @@ def GetParentNodes(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> 
 		children[idx2] |= children[idx1]
 
 	rootToLeaf: list[int] = []
-	q: Deque[int] = deque()
+	q: deque[int] = deque()
 	for i in range(len(parent)):
 		if(parent[i] == -1): q.append(i)
 	while(len(q) > 0):

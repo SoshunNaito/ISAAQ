@@ -1,12 +1,8 @@
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import numpy as np
 
 from isaaq.src.Common.PhysicalDevice import *
 from isaaq.src.CostTable.SubModule.SwapCostMatrix import *
 from isaaq.src.CostTable.CostMatrixGenerator import *
-
-import numpy as np
 
 def _GenerateCostTable(costMatrix: SwapCostMatrix) -> list[list[float]]:
     # normalize each row

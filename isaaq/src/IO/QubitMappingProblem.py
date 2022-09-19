@@ -1,11 +1,6 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from isaaq.src.Common.QubitMappingProblem import *
-from .QuantumCircuit import *
-from .PhysicalDevice import *
+from isaaq.src.IO.QuantumCircuit import *
+from isaaq.src.IO.PhysicalDevice import *
 
 def ExportMappingProblem(problem: QubitMappingProblem, filepath: str):
 	S = []

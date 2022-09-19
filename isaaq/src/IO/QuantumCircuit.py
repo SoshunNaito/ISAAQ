@@ -1,7 +1,3 @@
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from isaaq.src.Common.QuantumCircuit import *
 from isaaq.src.Common.QuantumGates import *
 

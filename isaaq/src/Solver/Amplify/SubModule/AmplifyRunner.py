@@ -1,17 +1,13 @@
-import os
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 
 from isaaq.src.Common.QubitMappingProblem import *
 from isaaq.src.Solver.Amplify.AmplifySettings import *
 from isaaq.src.Solver.Amplify.SubModule.AmplifyIO import *
 from isaaq.src.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
-from amplify import Solver, decode_solution, sum_poly, BinaryQuadraticModel
-from amplify import BinaryPoly, SymbolGenerator, BinarySymbolGenerator
+from amplify import Solver, BinarySymbolGenerator
 from amplify.client import FixstarsClient
-from amplify.constraint import equal_to, penalty, one_hot, clamp
+from amplify.constraint import equal_to, one_hot
 
 import time
 

@@ -1,9 +1,4 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-
-from collections import *
+from collections import deque
 
 from isaaq.src.Common.QuantumGates import *
 from isaaq.src.Common.PhysicalDevice import *

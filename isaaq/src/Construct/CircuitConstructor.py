@@ -1,7 +1,4 @@
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from isaaq.src.Common.QuantumGates import *
 from isaaq.src.Common.QuantumCircuit import *
@@ -11,8 +8,6 @@ from isaaq.src.Common.QubitMapping import *
 from isaaq.src.Construct.SubModule.Placing import *
 from isaaq.src.Construct.SubModule.Routing import *
 from isaaq.src.Construct.SubModule.RoutingCache import *
-
-
 
 def ConstructCircuit(
 	circuit_src: QuantumCircuit, mapping: QubitMapping,
