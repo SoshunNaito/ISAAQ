@@ -6,7 +6,7 @@ setup(
     description='Ising Machine-Assisted Quantum Compiler',
     author='Soshun Naito',
     author_email='soshun1005hamburg@gmail.com',
-    packages=['isaaq'],
+    packages=find_packages(),
     include_package_data=True,
     package_data={'isaaq': ['data/**/*.*']},
 )
