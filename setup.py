@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from glob import glob
 
 setup(
     name='isaaq',
@@ -8,5 +9,5 @@ setup(
     author_email='soshun1005hamburg@gmail.com',
     packages=find_packages(),
     include_package_data=True,
-    package_data={'isaaq': ['data/**/*.*']},
+    package_data={'isaaq': list(glob('data/**/*', recursive=True))},
 )
