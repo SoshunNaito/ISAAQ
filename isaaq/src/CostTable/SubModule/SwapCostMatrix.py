@@ -1,6 +1,5 @@
 import numpy as np
-# from nptyping import *
-# from typing import Tuple
+from typing import Tuple
 
 from isaaq.src.CostTable.SubModule.CostMatrixConfig import *
 
