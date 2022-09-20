@@ -6,5 +6,5 @@ setup(
     description='Ising Machine-Assisted Quantum Compiler',
     author='Soshun Naito',
     author_email='soshun1005hamburg@gmail.com',
-    data_files={'': ['data/**/*.*']},
+    data_files={'data': ['data/**/*.*']},
 )
