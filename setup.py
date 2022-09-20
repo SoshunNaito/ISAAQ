@@ -8,5 +8,5 @@ setup(
     author_email='soshun1005hamburg@gmail.com',
     packages=find_packages(),
     include_package_data=True,
-    package_data={'': ['data/**/*.*']},
+    package_data={'': ['isaaq/data/**/*.*']},
 )
