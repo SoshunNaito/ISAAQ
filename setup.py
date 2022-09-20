@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from glob import glob
 import os
 
-filenames = list(glob('isaaq/data/**/*', recursive=True))
+filenames = list(glob('isaaq/data/**/*.*', recursive=True))
 data_files = dict()
 for filename in filenames:
     dirname = os.path.dirname(filename)
