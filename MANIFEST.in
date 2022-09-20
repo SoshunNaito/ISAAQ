@@ -1,1 +1,1 @@
-recursive-include data *.config *.txt
+recursive-include data/** *.*
