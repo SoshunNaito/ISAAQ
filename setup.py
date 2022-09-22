@@ -2,14 +2,12 @@ from setuptools import setup, find_packages
 from glob import glob
 import os
 
-filenames = list(glob('isaaq/data/**/*.*', recursive=True))
+filenames = list(glob('data/**/*.*', recursive=True))
 data_files = dict()
 for filename in filenames:
-    dirname = os.path.dirname(filename).replace('isaaq/', '')
+    dirname = os.path.dirname(filename)
     if(dirname not in data_files): data_files[dirname] = [filename]
     else: data_files[dirname].append(filename)
-
-print(len(list(data_files.keys())))
 
 setup(
     name='isaaq',
