@@ -1,4 +1,0 @@
-recursive-include isaaq/data *
-recursive-include data *
-recursive-include isaaq/data/** *
-recursive-include data/** *
