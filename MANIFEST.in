@@ -1,3 +1,2 @@
 recursive-include data *.*
 recursive-include isaaq/data *.*
-global-include *.*
