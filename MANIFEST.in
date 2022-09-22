@@ -1,1 +1,2 @@
-include isaaq/data/**/*.*
+include isaaq/data/device_graph/Grid_5x5/edges.txt
+include data/device_graph/Grid_5x5/edges.txt
