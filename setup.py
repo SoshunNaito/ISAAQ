@@ -9,6 +9,8 @@ for filename in filenames:
     if(dirname not in data_files): data_files[dirname] = [filename]
     else: data_files[dirname].append(filename)
 
+print(len(list(data_files.keys())))
+
 setup(
     name='isaaq',
     version='0.1',
