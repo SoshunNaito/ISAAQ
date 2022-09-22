@@ -17,5 +17,5 @@ setup(
     author_email='soshun1005hamburg@gmail.com',
     packages=find_packages(),
     include_package_data=True,
-    data_files=list(data_files.items()),
+    data_files=sorted(list(data_files.items())),
 )
