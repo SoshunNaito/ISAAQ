@@ -5,7 +5,7 @@ import os
 filenames = list(glob('isaaq/data/**/*.*', recursive=True))
 data_files = dict()
 for filename in filenames:
-    dirname = "dst"
+    dirname = os.path.dirname(filename)[6:]
     if(dirname not in data_files): data_files[dirname] = [filename]
     else: data_files[dirname].append(filename)
 
