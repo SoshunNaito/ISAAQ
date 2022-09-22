@@ -1,2 +1,1 @@
-recursive-include data *.*
-recursive-include isaaq/data *.*
+recursive-exclude Construct *.pyc
