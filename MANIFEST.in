@@ -1,1 +1,2 @@
-include data/device_graph/Grid_5x5/edges.txt
+include isaaq/data/device_graph/Grid_5x5/edges.txt
+global-incclude *.txt *.config
