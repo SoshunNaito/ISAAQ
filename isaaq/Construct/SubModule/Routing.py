@@ -12,8 +12,10 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 
 		isFixed: list[bool] = [False] * graph.N
 		placeToContent: list[int] = [p for p in physicalToPhysical]
-		contentToPlace: list[int] = [0] * graph.N
-		for p in range(graph.N): contentToPlace[placeToContent[p]] = p
+		contentToPlace: list[int] = [-1] * graph.N
+		for p in range(graph.N):
+			if(placeToContent[p] != -1):
+				contentToPlace[placeToContent[p]] = p
 
 		INF = graph.N * 100 + 1000
 		distFromSrc = [INF] * graph.N
@@ -23,6 +25,7 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 			touchedNodes: list[int] = []
 
 			src = contentToPlace[dst] # srcにある中身をdstに持っていきたい
+			if(src == -1): continue
 			distToNodes: list[deque[int]] = [deque([src])]
 			distFromSrc[src] = 0
 			touchedNodes.append(src)
@@ -41,7 +44,8 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 						if(isFixed[y]): continue
 						v = placeToContent[y]
 						d1 = graph.distanceTo[dst][y] - graph.distanceTo[dst][x] + 1
-						d2 = graph.distanceTo[v][x] - graph.distanceTo[v][y] + 1
+						if(v == -1): d2 = 1
+						else: d2 = graph.distanceTo[v][x] - graph.distanceTo[v][y] + 1
 						d = distFromSrc[x] + d1 + d2
 						if(d < distFromSrc[y]):
 							distFromSrc[y] = d
