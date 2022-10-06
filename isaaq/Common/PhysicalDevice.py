@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Tuple
 
-from isaaq.Common.Qubits import *
+from isaaq.Common.PhysicalQubits import *
 
 class PhysicalDeviceGraph:
 	def __init__(self, name: str, N: int = 0, edges: list[Tuple[int, int]] = []):

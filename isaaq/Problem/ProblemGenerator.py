@@ -3,7 +3,7 @@ from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.Common.QubitMapping import *
 from isaaq.Common.QubitMappingProblem import *
-from isaaq.Common.Qubits import *
+from isaaq.Common.VirtualQubits import *
 
 MIN_LAYER_COUNT = 10 # レイヤーの最小枚数
 MAX_LAYER_SIZE = 20 # 1レイヤーに含まれるCXの個数

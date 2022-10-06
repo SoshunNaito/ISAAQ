@@ -1,6 +1,6 @@
 import os
 
-from isaaq.Common.Qubits import *
+from isaaq.Common.PhysicalQubits import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.CostTable import *
 

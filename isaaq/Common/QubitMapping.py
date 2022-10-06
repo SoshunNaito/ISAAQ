@@ -1,4 +1,4 @@
-from isaaq.Common.Qubits import *
+from isaaq.Common.VirtualQubits import *
 from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 
