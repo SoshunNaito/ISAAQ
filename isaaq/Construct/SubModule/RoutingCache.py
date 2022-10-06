@@ -2,12 +2,13 @@ from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 
 from typing import Tuple
+from dataclasses import dataclass
 
+@dataclass
 class _RoutingNode:
-	def __init__(self, depth: int, back: list[int] = None, pair: Tuple[int, int] = None):
-		self.depth: int = depth
-		self.back: list[int] = back
-		self.pair: Tuple[int, int] = pair
+	depth: int
+	back: list[int] = None
+	pair: Tuple[int, int] = None
 
 class RoutingCache:
 	def __init__(self, graph: PhysicalDeviceGraph, maxCacheSize = 10000):

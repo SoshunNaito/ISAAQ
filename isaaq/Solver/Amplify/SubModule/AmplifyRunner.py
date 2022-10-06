@@ -10,13 +10,14 @@ from amplify.client import FixstarsClient
 from amplify.constraint import equal_to, one_hot
 
 import time
+from dataclasses import dataclass
 
+@dataclass
 class AmplifyExecutionInfo:
-	def __init__(self):
-		self.num_trials = 0
-		self.execution_time = 0
-		self.cpu_time = 0
-		self.queue_time = 0
+	num_trials: int = 0
+	execution_time: float = 0
+	cpu_time: float = 0
+	queue_time: float = 0
 
 # solve with Amplify
 def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyExecutionInfo:
