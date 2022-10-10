@@ -7,7 +7,7 @@ from isaaq.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
 from amplify import Solver, BinarySymbolGenerator
 from amplify.client import FixstarsClient
-from amplify.constraint import equal_to, one_hot
+from amplify.constraint import equal_to, clamp, one_hot
 
 import time
 from dataclasses import dataclass
@@ -49,8 +49,8 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 				arr[n_out] += x[m][n_in][idx_out]
 		for n_out in range(N_out):
 			# 行き先が集中して溢れることを防ぐ
-			# constraint += clamp(x[m, :, n_out].sum(), 0, 1)
-			constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
+			constraint += clamp(x[m, :, n_out].sum(), 0, 1)
+			# constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
 
 	deviceCost = problem.physicalDevice.cost
 
