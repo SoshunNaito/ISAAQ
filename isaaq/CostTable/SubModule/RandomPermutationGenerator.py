@@ -19,9 +19,12 @@ def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 	else:
 		ans: list[list[int]] = []
 		
+		tree = [0 for i in range(N + 1)]
 		for permutation_idx in range(size_max):
-			v = [randrange(i * 100) // 100  for i in range(1, N+1)][::-1]
-			tree = [(i & -i) for i in range(N + 1)]
+			v = [randint(0, i) for i in range(N)][::-1]
+			for i in range(N + 1):
+				tree[i] = i & -i
+
 			for i in range(N):
 				s, x = 0, 0
 				for d in range(depth)[::-1]:
