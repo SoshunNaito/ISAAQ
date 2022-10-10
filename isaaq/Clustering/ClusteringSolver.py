@@ -43,7 +43,7 @@ def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
 
         i += 1
 
-    return  [cluster.qubits for cluster in clusters]
+    return  [[q for q in cluster.qubits] for cluster in clusters]
 
 def SolveClusteringProblem(problem: ClusteringProblem) -> ClusteringResult:
     clusters = RandomClustering(problem)
