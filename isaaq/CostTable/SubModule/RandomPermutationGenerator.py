@@ -2,10 +2,7 @@ from itertools import *
 from random import *
 
 def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
-	depth = 0
-	while((1 << depth) <= N): depth += 1
-
-	size_max = prod_max // (N * depth)
+	size_max = prod_max // (N * N)
 	print("GenerateRandomPermutationList: size_max = " + str(size_max))
 
 	F = 1
@@ -18,8 +15,10 @@ def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 	if(F <= size_max):
 		return [list(p) for p in permutations(list(range(N)))]
 	else:
+		depth = 0
+		while((1 << depth) <= N): depth += 1
+
 		ans: list[list[int]] = []
-		
 		tree = [0 for i in range(N + 1)]
 		for permutation_idx in range(size_max):
 			v = [randint(0, i) for i in range(N)][::-1]
