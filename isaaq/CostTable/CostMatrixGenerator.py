@@ -16,7 +16,7 @@ def _GenerateConfig(graph: PhysicalDeviceGraph, maxLocalInteractionDist = -1) ->
 
 def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph):
 	routingCache = RoutingCache(graph)
-	permutations = GenerateRandomPermutationList(graph.N, 10000)
+	permutations = GenerateRandomPermutationList(graph.N, 300000)
 
 	S = []
 	for p in permutations:

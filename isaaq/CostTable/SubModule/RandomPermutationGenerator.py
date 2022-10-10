@@ -1,7 +1,12 @@
 from itertools import *
 from random import *
 
-def GenerateRandomPermutationList(N: int, size_max: int) -> list[list[int]]:
+def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
+	depth = 0
+	while((1 << depth) <= N): depth += 1
+
+	size_max = prod_max // (N * depth)
+
 	F = 1
 	for n in range(1, N+1):
 		F *= n
@@ -13,8 +18,6 @@ def GenerateRandomPermutationList(N: int, size_max: int) -> list[list[int]]:
 		return [list(p) for p in permutations(list(range(N)))]
 	else:
 		ans: list[list[int]] = []
-		depth = 0
-		while((1 << depth) <= N): depth += 1
 		
 		for permutation_idx in range(size_max):
 			v = [randrange(i * 100) // 100  for i in range(1, N+1)][::-1]
