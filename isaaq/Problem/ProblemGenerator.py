@@ -5,21 +5,20 @@ from isaaq.Common.QubitMapping import *
 from isaaq.Common.QubitMappingProblem import *
 from isaaq.Common.VirtualQubits import *
 
-MIN_LAYER_COUNT = 10 # レイヤーの最小枚数
-MAX_LAYER_SIZE = 20 # 1レイヤーに含まれるCXの個数
+def GenerateMappingProblem(
+	circuit: QuantumCircuit, device: PhysicalDevice,
+	minLayerCount: int = 10, maxLayerSize: int = 20
+) -> QubitMappingProblem:
 
-def _CalcLayerCount(CX_count: int) -> int:
-	if(CX_count <= MIN_LAYER_COUNT): return CX_count
-	elif(CX_count <= MIN_LAYER_COUNT * MAX_LAYER_SIZE): return MIN_LAYER_COUNT
-	else: return (CX_count + MAX_LAYER_SIZE - 1) // MAX_LAYER_SIZE
-
-def GenerateMappingProblem(circuit: QuantumCircuit, device: PhysicalDevice) -> QubitMappingProblem:
 	Qubits = VirtualQubits(len(circuit.indexToQubit))
 	layers = [QubitMappingLayer(Qubits)]
 	CX_count = 0
 	for gate in circuit.gates:
 		if(isinstance(gate, CXGate)): CX_count += 1
-	layer_count = _CalcLayerCount(CX_count)
+	
+	if(CX_count <= minLayerCount): layer_count = CX_count
+	elif(CX_count <= minLayerCount * maxLayerSize): layer_count = minLayerCount
+	else: layer_count = (CX_count + maxLayerSize - 1) // maxLayerSize
 
 	CX_idx, layer_idx = 0, 1
 	for gate in circuit.gates:
