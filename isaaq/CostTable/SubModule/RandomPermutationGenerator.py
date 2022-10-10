@@ -6,6 +6,7 @@ def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 	while((1 << depth) <= N): depth += 1
 
 	size_max = prod_max // (N * depth)
+	print("size_max = " + str(size_max))
 
 	F = 1
 	for n in range(1, N+1):
@@ -39,4 +40,7 @@ def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 					tree[j] -= 1
 					j += j & -j
 			ans.append(v)
+			
+			if(permutation_idx % 1000 == 0):
+				print("permutation_idx = " + str(permutation_idx))
 		return ans
