@@ -20,11 +20,11 @@ def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
     qubitList = []
     # roots = random.sample(list(range(problem.originalDevice.qubits.N)), problem.numClusters)
     islands = [
-        (problem.originalDevice.qubits.sizes + random.random(), i)
+        (problem.originalDevice.qubits.sizes[i] + random.random(), i)
         for i in range(problem.originalDevice.qubits.N)
     ]
     roots = [i for (s, i) in sorted(islands, reverse=True)]
-    
+
     for i in range(problem.numClusters):
         root = roots[i]
         qubitList.append(root)
