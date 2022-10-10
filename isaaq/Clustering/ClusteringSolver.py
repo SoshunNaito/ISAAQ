@@ -18,7 +18,13 @@ def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
     candidates: list[list[int]] = [[] for i in range(problem.originalDevice.qubits.N)]
 
     qubitList = []
-    roots = random.sample(list(range(problem.originalDevice.qubits.N)), problem.numClusters)
+    # roots = random.sample(list(range(problem.originalDevice.qubits.N)), problem.numClusters)
+    islands = [
+        (problem.originalDevice.qubits.sizes + random.random(), i)
+        for i in range(problem.originalDevice.qubits.N)
+    ]
+    roots = [i for (s, i) in sorted(islands, reverse=True)]
+    
     for i in range(problem.numClusters):
         root = roots[i]
         qubitList.append(root)
@@ -47,7 +53,6 @@ def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
 
 def SolveClusteringProblem(problem: ClusteringProblem) -> ClusteringResult:
     clusters = RandomClustering(problem)
-    print(clusters)
 
     clusterDevice = GenerateClusterDevice(
         problem.originalDevice, clusters,
