@@ -12,7 +12,7 @@ class Cluster:
         self.qubits.append(q)
         self.totalSize += size
 
-def _RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
+def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
     clusters: list[Cluster] = [Cluster() for i in range(problem.numClusters)]
     isChecked: list[bool] = [False for i in range(problem.originalDevice.qubits.N)]
     candidates: list[list[int]] = [[] for i in range(problem.originalDevice.qubits.N)]
@@ -43,10 +43,12 @@ def _RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
 
         i += 1
 
+    print(qubitList)
+
     return  [cluster.qubits for cluster in clusters]
 
 def SolveClusteringProblem(problem: ClusteringProblem) -> ClusteringResult:
-    clusters = _RandomClustering(problem)
+    clusters = RandomClustering(problem)
 
     clusterDevice = GenerateClusterDevice(
         problem.originalDevice, clusters,

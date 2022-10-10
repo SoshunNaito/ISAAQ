@@ -15,7 +15,7 @@ def GenerateClusterDevice(
     for idx_c in range(len(clusters)):
         for idx_q in clusters[idx_c]:
             if(qubitToCluster[idx_q] != -1):
-                raise RuntimeError("複数のqubitが同じclusterに属しています")
+                raise RuntimeError("qubitが複数のclusterに属しています")
             qubitToCluster[idx_q] = idx_c
     for c in qubitToCluster:
         if(c == -1): raise RuntimeError("clusterに属さないqubitがあります")
