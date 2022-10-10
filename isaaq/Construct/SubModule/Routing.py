@@ -4,10 +4,15 @@ from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.Construct.SubModule.RoutingCache import *
 
+import random
+
 def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: RoutingCache = None) -> list[CXGate]:
 	ans_gates: list[CXGate] = []
 
-	for bfs_root in range(graph.N):
+	if(graph.N <= 20): bfs_roots = list(range(graph.N))
+	else: bfs_roots = random.sample(list(range(graph.N)), 20)
+
+	for bfs_root in bfs_roots:
 		ans: list[CXGate] = []
 
 		isFixed: list[bool] = [False] * graph.N
