@@ -43,12 +43,11 @@ def RandomClustering(problem: ClusteringProblem) -> list[list[int]]:
 
         i += 1
 
-    print(qubitList)
-
     return  [cluster.qubits for cluster in clusters]
 
 def SolveClusteringProblem(problem: ClusteringProblem) -> ClusteringResult:
     clusters = RandomClustering(problem)
+    print(clusters)
 
     clusterDevice = GenerateClusterDevice(
         problem.originalDevice, clusters,
