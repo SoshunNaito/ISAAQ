@@ -3,7 +3,6 @@ from random import *
 
 def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 	size_max = prod_max // (N * N)
-	print("GenerateRandomPermutationList: size_max = " + str(size_max))
 
 	F = 1
 	for n in range(1, N+1):
@@ -39,6 +38,4 @@ def GenerateRandomPermutationList(N: int, prod_max: int) -> list[list[int]]:
 					tree[j] -= 1
 					j += j & -j
 			ans.append(v)
-		
-		print("GenerateRandomPermutationList: finished")
 		return ans
