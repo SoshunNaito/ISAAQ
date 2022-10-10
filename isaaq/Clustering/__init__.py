@@ -1,3 +1,3 @@
-from isaaq.QubitConnection.ClusterGraphGenerator import *
-from isaaq.QubitConnection.ClusteringProblem import *
-from isaaq.QubitConnection.ClusteringSolver import *
+from isaaq.Clustering.ClusterDeviceGenerator import *
+from isaaq.Clustering.ClusteringProblem import *
+from isaaq.Clustering.ClusteringSolver import *
