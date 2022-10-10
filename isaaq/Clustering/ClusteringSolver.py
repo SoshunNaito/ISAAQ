@@ -5,7 +5,7 @@ import random
 
 class Cluster:
     def __init__(self, qubits: list[int] = [], totalSize: int = 0):
-        self.qubits = qubits
+        self.qubits = [q for q in qubits]
         self.totalSize = totalSize
     
     def addQubit(self, q: int, size: int):
