@@ -11,18 +11,18 @@ def GenerateClusterDevice(
 ) -> PhysicalDevice:
 
     clusterQubits = PhysicalQubits(len(clusters), [sum([originalDevice.qubits.sizes[c] for c in cluster]) for cluster in clusters])
-    qubitToCluster: list[int] = [-1] * originalDevice.qubits.numQubits
+    originalToCluster: list[int] = [-1] * originalDevice.qubits.N
     for idx_c in range(len(clusters)):
         for idx_q in clusters[idx_c]:
-            if(qubitToCluster[idx_q] != -1):
+            if(originalToCluster[idx_q] != -1):
                 raise RuntimeError("qubitが複数のclusterに属しています")
-            qubitToCluster[idx_q] = idx_c
-    for c in qubitToCluster:
+            originalToCluster[idx_q] = idx_c
+    for c in originalToCluster:
         if(c == -1): raise RuntimeError("clusterに属さないqubitがあります")
     
     edges: set[Tuple[int, int]] = set()
     for _a, _b in originalDevice.graph.edges:
-        a, b = qubitToCluster[_a], qubitToCluster[_b]
+        a, b = originalToCluster[_a], originalToCluster[_b]
         if(a == b): continue
         if(a > b): a, b = b, a
         edges.add((a, b))
