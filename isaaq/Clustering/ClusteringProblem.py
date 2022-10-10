@@ -1,13 +1,16 @@
 from isaaq.Common.PhysicalDevice import PhysicalDevice
-from dataclasses import dataclass
 
-@dataclass
 class ClusteringProblem:
-    originalDevice: PhysicalDevice
-    numClusters: int
+    def __init__(self, originalDevice: PhysicalDevice, numClusters: int):
+        self.originalDevice = originalDevice
+        self.numClusters = numClusters
 
-@dataclass
 class ClusteringResult:
-    originalDevice: PhysicalDevice
-    clusterDevice: PhysicalDevice
-    clusters: list[list[int]]
+    def __init__(
+        self,
+        originalDevice: PhysicalDevice, clusterDevice: PhysicalDevice,
+        clusters: list[list[int]]
+    ):
+        self.originalDevice = originalDevice
+        self.clusterDevice = clusterDevice
+        self.clusters = clusters

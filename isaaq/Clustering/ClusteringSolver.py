@@ -1,13 +1,12 @@
 from isaaq.Clustering.ClusterDeviceGenerator import GenerateClusterDevice
 from isaaq.Clustering.ClusteringProblem import *
-from dataclasses import dataclass
 
 import random
 
-@dataclass
 class Cluster:
-    qubits: list[int] = []
-    totalSize: int = 0
+    def __init__(self, qubits: list[int] = [], totalSize: int = 0):
+        self.qubits = qubits
+        self.totalSize = totalSize
     
     def addQubit(self, q: int, size: int):
         self.qubits.append(q)
