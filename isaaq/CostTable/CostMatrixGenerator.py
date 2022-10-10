@@ -10,7 +10,7 @@ from isaaq.Construct.SubModule.RoutingCache import *
 def _GenerateConfig(graph: PhysicalDeviceGraph, maxLocalInteractionDist = -1) -> CostMatrixConfig:
 	if(maxLocalInteractionDist == -1):
 		config = FullConnectedConfig(graph.N)
-		for d in range(5)[::-1]:
+		for d in range(1, 5)[::-1]:
 			if(len(config.variableToEdges) > 1000):
 				config = LocallyConnectedConfig(graph.N, d, graph)
 	else:
