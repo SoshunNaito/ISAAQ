@@ -49,7 +49,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 				arr[n_out] += x[m][n_in][idx_out]
 		for n_out in range(N_out):
 			# 行き先が集中して溢れることを防ぐ
-			constraint += clamp(x[m, :, n_out].sum(), 0, 1)
+			constraint += clamp(sum([x[m][n_in][n_out] for n_in in range(N_in)]), 0, 1)
 			# constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
 
 	deviceCost = problem.physicalDevice.cost
