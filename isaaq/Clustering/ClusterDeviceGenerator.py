@@ -6,14 +6,14 @@ from isaaq.IO.PhysicalDevice import *
 from typing import Callable
 
 def GenerateClusterDevice(
-    originalDevice: PhysicalDevice, clusteringResult: list[list[int]],
-    clusterCostFunc: Callable[[list[float]], float]
+    originalDevice: PhysicalDevice, clusters: list[list[int]],
+    clusterCostFunc: Callable[[list[float], list[float]], float]
 ) -> PhysicalDevice:
 
-    clusterQubits = PhysicalQubits(len(clusteringResult), [len(A) for A in clusteringResult])
+    clusterQubits = PhysicalQubits(len(clusters), [sum([originalDevice.qubits.sizes[c] for c in cluster]) for cluster in clusters])
     qubitToCluster: list[int] = [-1] * originalDevice.qubits.numQubits
-    for idx_c in range(len(clusteringResult)):
-        for idx_q in clusteringResult[idx_c]:
+    for idx_c in range(len(clusters)):
+        for idx_q in clusters[idx_c]:
             if(qubitToCluster[idx_q] != -1):
                 raise RuntimeError("複数のqubitが同じclusterに属しています")
             qubitToCluster[idx_q] = idx_c
@@ -31,18 +31,19 @@ def GenerateClusterDevice(
     cost_swap: list[list[float]] = [[0 for j in range(clusterQubits.N)] for i in range(clusterQubits.N)]
 
     for i in range(clusterQubits.N):
-        qubits_i = clusteringResult[i]
+        qubits_i = clusters[i]
         for j in range(clusterQubits.N):
-            qubits_j = clusteringResult[j]
+            qubits_j = clusters[j]
 
-            cnots, swaps = [], []
+            cnots, swaps, weights = [], [], []
             for qi in qubits_i:
                 for qj in qubits_j:
                     cnots.append(originalDevice.cost.cost_cnot[qi][qj])
                     swaps.append(originalDevice.cost.cost_swap[qi][qj])
+                    weights.append(originalDevice.qubits.sizes[qi] * originalDevice.qubits.sizes[qj])
             
-            cost_cnot[i][j] = clusterCostFunc(cnots)
-            cost_swap[i][j] = clusterCostFunc(swaps)
+            cost_cnot[i][j] = clusterCostFunc(cnots, weights)
+            cost_swap[i][j] = clusterCostFunc(swaps, weights)
 
     clusterGraph = PhysicalDeviceGraph(originalDevice.graph.name + "_", clusterQubits.N, list(edges))
     clusterCost = PhysicalDeviceCost(originalDevice.cost.name + "_", cost_cnot, cost_swap)
