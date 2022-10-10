@@ -20,6 +20,8 @@ def ExportQubits(qubits: PhysicalQubits, deviceGraphName: str, filepath: str = "
 
 	if(filepath == ""):
 		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/qubits.txt")
+	
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
@@ -45,6 +47,8 @@ def ExportGraph(graph: PhysicalDeviceGraph, deviceGraphName: str, filepath: str 
 
 	if(filepath == ""):
 		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/edges.txt")
+
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
@@ -73,6 +77,7 @@ def ExportCost(filepath: str, deviceCost: PhysicalDeviceCost):
 	for costs in deviceCost.cost_swap:
 		S.append(" ".join([str(c) for c in costs]) + "\n")
 	
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
@@ -88,8 +93,6 @@ def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: boo
 		elif(os.path.isfile(filepath_initial)):
 			return ImportCost(deviceCostName, filepath_initial)
 
-	os.makedirs(folderPath_initial, exist_ok = True)
-	os.makedirs(folderPath_learned, exist_ok = True)
 	try:
 		graph = ImportGraph(deviceGraphName)
 		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, ~refreshCostTable, -1)
