@@ -33,7 +33,7 @@ def GenerateInitialCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderPath = os.path.join(os.path.dirname(__file__), "../data/log/swap/initial/" + deviceCostName)
+	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/initial/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
 	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)
@@ -64,7 +64,7 @@ def GenerateActualCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderPath = os.path.join(os.path.dirname(__file__), "../data/log/swap/actual/" + deviceCostName)
+	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/actual/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
 	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)

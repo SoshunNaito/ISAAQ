@@ -48,8 +48,8 @@ def GenerateClusterDevice(
     clusterGraph = PhysicalDeviceGraph(originalDevice.graph.name + "_", clusterQubits.N, list(edges))
     clusterCost = PhysicalDeviceCost(originalDevice.cost.name + "_", cost_cnot, cost_swap)
 
-    graphFolderPath = os.path.join(os.path.dirname(__file__), "../data/device_graph/" + clusterGraph.name)
-    costFolderpath = os.path.join(os.path.dirname(__file__), "../data/device_cost/learned/" + clusterCost.name)
+    graphFolderPath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + clusterGraph.name)
+    costFolderpath = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/learned/" + clusterCost.name)
     costFilepath = os.path.join(costFolderpath, "cost_tables.txt")
     os.makedirs(graphFolderPath, exist_ok = True)
     os.makedirs(costFolderpath, exist_ok = True)

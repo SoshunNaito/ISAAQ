@@ -14,7 +14,7 @@ def ConstructCircuit(
 	addRoutingLog = True, routingCache: RoutingCache = None
 ) -> QuantumCircuit:
 
-	folderPath = os.path.join(os.path.dirname(__file__), "../data/log/swap/actual/" + mapping.physicalDevice.cost.name)
+	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/actual/" + mapping.physicalDevice.cost.name)
 	logFilePath = os.path.join(folderPath, "log.txt")
 	logs = []
 
