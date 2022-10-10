@@ -48,6 +48,8 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 				n_out = problem.candidates[m][n_in][idx_out]
 				arr[n_out] += x[m][n_in][idx_out]
 		for n_out in range(N_out):
+			if(arr[n_out] == 0): continue
+			
 			# 行き先が集中して溢れることを防ぐ
 			constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
 			# constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
