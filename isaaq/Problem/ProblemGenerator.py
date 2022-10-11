@@ -7,7 +7,7 @@ from isaaq.Common.VirtualQubits import *
 
 def GenerateMappingProblem(
 	circuit: QuantumCircuit, device: PhysicalDevice,
-	minLayerCount: int = 10, maxLayerSize: int = 20
+	maxLayerSize: int = -1, minLayerCount: int = 1
 ) -> QubitMappingProblem:
 
 	Qubits = VirtualQubits(len(circuit.indexToQubit))
@@ -15,6 +15,7 @@ def GenerateMappingProblem(
 	CX_count = 0
 	for gate in circuit.gates:
 		if(isinstance(gate, CXGate)): CX_count += 1
+	if(maxLayerSize == -1): maxLayerSize = CX_count
 	
 	if(CX_count <= minLayerCount): layer_count = CX_count
 	elif(CX_count <= minLayerCount * maxLayerSize): layer_count = minLayerCount
