@@ -21,7 +21,7 @@ def ConstructCircuit(
 	if(routingCache != None): cache = routingCache
 	else: cache = RoutingCache(mapping.physicalDevice.graph)
 
-	circuit_dst = QuantumCircuit(circuit_src.Qubits, circuit_src.Cbits)
+	circuit_dst = QuantumCircuit([("Q", mapping.physicalDevice.qubits.N)], circuit_src.Cbits)
 	for l in range(mapping.numLayers):
 		# routing Qubits
 		if(l > 0):
