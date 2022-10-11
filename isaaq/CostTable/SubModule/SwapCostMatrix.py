@@ -19,6 +19,7 @@ class SwapCostMatrix:
 
 		for a in range(len(permutation)):
 			b = permutation[a]
+			if(b == -1): continue
 			v1.append(self.config.edgeToVariable[a * self.N + b])
 			v2.append(self.config.edgeToVariable[b * self.N + a])
 
