@@ -106,7 +106,6 @@ def SolveClusteringProblem(
         child_idx = 0
         nextSymbols = [0 for i in range(problem.originalDevice.graph.N)]
         lenList = []
-        elapsedTime = 0
         for c in range(numClustersList[device_idx]):
             G = nx.Graph()
             for i in range(problem.originalDevice.graph.N):
@@ -126,6 +125,8 @@ def SolveClusteringProblem(
         clusterMappings = [set() for _ in range(numClustersList[device_idx])]
         for n in range(problem.originalDevice.graph.N): clusterMappings[symbols[n]].add(nextSymbols[n])
         for clusterMapping in clusterMappings: clusteringResult.clusterMappings[device_idx].append(list(clusterMapping))
+
+        symbols = [s for s in nextSymbols]
     
     clusteringResult.clusterDevices[problem.numClusterDevices - 1] = problem.originalDevice
     for i in range(problem.numClusterDevices - 1)[::-1]:
