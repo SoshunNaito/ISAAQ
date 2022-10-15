@@ -49,7 +49,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 				arr[n_out] += x[m][n_in][idx_out]
 		for n_out in range(N_out):
 			if(arr[n_out] == 0): continue
-			
+
 			# 行き先が集中して溢れることを防ぐ
 			constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
 			# constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
@@ -100,7 +100,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 	client.parameters.timeout = settings.timeout
 	solver = Solver(client)
 
-	max_strength = settings.constraint_strength * (2 ** 20)
+	max_strength = settings.constraint_strength * (2 ** 50)
 	strength = settings.constraint_strength
 	while(strength < max_strength):
 		model = cost + constraint * strength
