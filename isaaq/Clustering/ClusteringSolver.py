@@ -91,8 +91,6 @@ def SolveClusteringProblem(
         for i in range(problem.originalDevice.graph.N):
             parentSize[symbols[i]] += 1
 
-        print("device_idx = " + str(device_idx))
-
         # parentSizeに応じてchildCountを決定する
         heap = []
         for c in range(numClustersList[device_idx]):
