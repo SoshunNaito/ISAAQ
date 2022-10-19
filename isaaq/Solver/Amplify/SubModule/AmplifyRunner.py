@@ -27,6 +27,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 
 	N_in = problem.layers[0].virtualQubits.N
 	N_out = problem.physicalDevice.qubits.N
+	N_dummy = problem.physicalDevice.qubits.numQubits - problem.layers[0].virtualQubits.numQubits
 	M = problem.numLayers
 
 	gen = BinarySymbolGenerator()
@@ -36,6 +37,11 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 				gen.array(len(problem.candidates[m][n_in])) for n_in in range(N_in)
 			] for m in range(M)
 		]
+	dummy = [
+		[
+			gen.array(N_out) for n_dummy in range(N_dummy)
+		] for m in range(M)
+	]
 
 	constraint = 0
 	for m in range(M):
@@ -47,12 +53,18 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 			for idx_out in range(len(problem.candidates[m][n_in])):
 				n_out = problem.candidates[m][n_in][idx_out]
 				arr[n_out] += x[m][n_in][idx_out]
+		for n_dummy in range(N_dummy):
+			# 行き先が必ず一つ存在する
+			constraint += one_hot(dummy[m][n_dummy])
+			# 行き先ごとにエッジを集計
+			for n_out in range(N_out):
+				arr[n_out] += dummy[m][n_dummy][n_out]
 		for n_out in range(N_out):
-			if(arr[n_out] == 0): continue
+			# if(arr[n_out] == 0): continue
 
 			# 行き先が集中して溢れることを防ぐ
-			constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
-			# constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
+			# constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
+			constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
 
 	deviceCost = problem.physicalDevice.cost
 
