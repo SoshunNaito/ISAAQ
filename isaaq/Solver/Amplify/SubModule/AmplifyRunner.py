@@ -7,16 +7,17 @@ from isaaq.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
 from amplify import Solver, BinarySymbolGenerator
 from amplify.client import FixstarsClient
-from amplify.constraint import equal_to, one_hot
+from amplify.constraint import equal_to, clamp, one_hot
 
 import time
+from dataclasses import dataclass
 
+@dataclass
 class AmplifyExecutionInfo:
-	def __init__(self):
-		self.num_trials = 0
-		self.execution_time = 0
-		self.cpu_time = 0
-		self.queue_time = 0
+	num_trials: int = 0
+	execution_time: float = 0
+	cpu_time: float = 0
+	queue_time: float = 0
 
 # solve with Amplify
 def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyExecutionInfo:
@@ -26,15 +27,21 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 
 	N_in = problem.layers[0].virtualQubits.N
 	N_out = problem.physicalDevice.qubits.N
+	N_dummy = problem.physicalDevice.qubits.numQubits - problem.layers[0].virtualQubits.numQubits
 	M = problem.numLayers
 
 	gen = BinarySymbolGenerator()
-	x = gen.array(M, N_in, N_out)
+	# x = gen.array(M, N_in, N_out)
 	x =	[
 			[
 				gen.array(len(problem.candidates[m][n_in])) for n_in in range(N_in)
 			] for m in range(M)
 		]
+	dummy = [
+		[
+			gen.array(N_out) for n_dummy in range(N_dummy)
+		] for m in range(M)
+	]
 
 	constraint = 0
 	for m in range(M):
@@ -46,9 +53,17 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 			for idx_out in range(len(problem.candidates[m][n_in])):
 				n_out = problem.candidates[m][n_in][idx_out]
 				arr[n_out] += x[m][n_in][idx_out]
+		for n_dummy in range(N_dummy):
+			# 行き先が必ず一つ存在する
+			constraint += one_hot(dummy[m][n_dummy])
+			# 行き先ごとにエッジを集計
+			for n_out in range(N_out):
+				arr[n_out] += dummy[m][n_dummy][n_out]
 		for n_out in range(N_out):
+			# if(arr[n_out] == 0): continue
+
 			# 行き先が集中して溢れることを防ぐ
-			# constraint += clamp(x[m, :, n_out].sum(), 0, 1)
+			# constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
 			constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
 
 	deviceCost = problem.physicalDevice.cost
@@ -97,7 +112,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 	client.parameters.timeout = settings.timeout
 	solver = Solver(client)
 
-	max_strength = settings.constraint_strength * (2 ** 20)
+	max_strength = settings.constraint_strength * (2 ** 50)
 	strength = settings.constraint_strength
 	while(strength < max_strength):
 		model = cost + constraint * strength

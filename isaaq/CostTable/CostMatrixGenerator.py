@@ -10,13 +10,16 @@ from isaaq.Construct.SubModule.RoutingCache import *
 def _GenerateConfig(graph: PhysicalDeviceGraph, maxLocalInteractionDist = -1) -> CostMatrixConfig:
 	if(maxLocalInteractionDist == -1):
 		config = FullConnectedConfig(graph.N)
+		for d in range(1, 5)[::-1]:
+			if(len(config.variableToEdges) > 1000):
+				config = LocallyConnectedConfig(graph.N, d, graph)
 	else:
 		config = LocallyConnectedConfig(graph.N, maxLocalInteractionDist, graph)
 	return config
 
 def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph):
 	routingCache = RoutingCache(graph)
-	permutations = GenerateRandomPermutationList(graph.N, 10000)
+	permutations = GenerateRandomPermutationList(graph.N, 4000000)
 
 	S = []
 	for p in permutations:
@@ -33,7 +36,7 @@ def GenerateInitialCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderPath = os.path.join(os.path.dirname(__file__), "../data/log/swap/initial/" + deviceCostName)
+	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/initial/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
 	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)
@@ -64,7 +67,7 @@ def GenerateActualCostMatrix(
 
 	config = _GenerateConfig(graph, maxLocalInteractionDist)
 
-	folderPath = os.path.join(os.path.dirname(__file__), "../data/log/swap/actual/" + deviceCostName)
+	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/actual/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
 	os.makedirs(folderPath, exist_ok = True)
 	os.makedirs(cacheFolderPath, exist_ok = True)

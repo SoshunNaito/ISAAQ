@@ -12,11 +12,3 @@ class Qubits:
 		self.N = len(sizes)
 		self.numQubits = sum(sizes)
 		self.sizes = [s for s in sizes]
-
-class VirtualQubits(Qubits):
-	def __init__(self, N: int, sizes: list[int] = None):
-		super().__init__(N, sizes)
-
-class PhysicalQubits(Qubits):
-	def __init__(self, N: int, sizes: list[int] = None):
-		super().__init__(N, sizes)

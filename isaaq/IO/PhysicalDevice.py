@@ -1,12 +1,12 @@
 import os
 
-from isaaq.Common.Qubits import *
+from isaaq.Common.PhysicalQubits import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.CostTable import *
 
 def ImportQubits(deviceGraphName: str, filepath: str = "") -> PhysicalQubits:
 	if(filepath == ""):
-		filepath = os.path.join(os.path.dirname(__file__), "../data/device_graph/" + deviceGraphName + "/qubits.txt")
+		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/qubits.txt")
 	with open(filepath, mode = "r") as f:
 		S = f.readlines()
 	N = int(S[0].strip())
@@ -19,13 +19,15 @@ def ExportQubits(qubits: PhysicalQubits, deviceGraphName: str, filepath: str = "
 	S.append(" ".join([str(s) for s in qubits.sizes]) + "\n")
 
 	if(filepath == ""):
-		filepath = os.path.join(os.path.dirname(__file__), "../data/device_graph/" + deviceGraphName + "/qubits.txt")
+		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/qubits.txt")
+	
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
 def ImportGraph(deviceGraphName: str, filepath: str = "") -> PhysicalDeviceGraph:
 	if(filepath == ""):
-		filepath = os.path.join(os.path.dirname(__file__), "../data/device_graph/" + deviceGraphName + "/edges.txt")
+		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/edges.txt")
 	with open(filepath, mode = "r") as f:
 		S = f.readlines()
 	N, M = map(int, S[0].strip().split())
@@ -44,7 +46,9 @@ def ExportGraph(graph: PhysicalDeviceGraph, deviceGraphName: str, filepath: str 
 		S.append(str(a) + " " + str(b) + "\n")
 
 	if(filepath == ""):
-		filepath = os.path.join(os.path.dirname(__file__), "../data/device_graph/" + deviceGraphName + "/edges.txt")
+		filepath = os.path.join(os.path.dirname(__file__), "../internal_data/device_graph/" + deviceGraphName + "/edges.txt")
+
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
@@ -73,12 +77,13 @@ def ExportCost(filepath: str, deviceCost: PhysicalDeviceCost):
 	for costs in deviceCost.cost_swap:
 		S.append(" ".join([str(c) for c in costs]) + "\n")
 	
+	os.makedirs(os.path.dirname(filepath), exist_ok = True)
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
 def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: bool) -> PhysicalDeviceCost:
-	folderPath_initial = os.path.join(os.path.dirname(__file__), "../data/device_cost/initial/" + deviceCostName)
-	folderPath_learned = os.path.join(os.path.dirname(__file__), "../data/device_cost/learned/" + deviceCostName)
+	folderPath_initial = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/initial/" + deviceCostName)
+	folderPath_learned = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/learned/" + deviceCostName)
 	filepath_initial = os.path.join(folderPath_initial, "cost_tables.txt")
 	filepath_learned = os.path.join(folderPath_learned, "cost_tables.txt")
 
@@ -88,8 +93,6 @@ def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: boo
 		elif(os.path.isfile(filepath_initial)):
 			return ImportCost(deviceCostName, filepath_initial)
 
-	os.makedirs(folderPath_initial, exist_ok = True)
-	os.makedirs(folderPath_learned, exist_ok = True)
 	try:
 		graph = ImportGraph(deviceGraphName)
 		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, ~refreshCostTable, -1)

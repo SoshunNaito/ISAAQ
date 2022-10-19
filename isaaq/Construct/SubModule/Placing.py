@@ -50,13 +50,13 @@ class PhysicalGateStack:
         singleGates: list[Union[U3Gate, MeasureGate]] = [g for g in self.singleGateStack[node]]
         self.singleGateStack[node].clear()
 
-        if(nextStatus in [QubitStatus.NONE, QubitStatus.CONTROL]):
+        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.CONTROL]):
             for i in range(self.N):
                 if(self.hasCX[i][node]):
                     CXGates.append(CXGate(i, node))
                     self.hasCX[i][node] = False
 
-        if(nextStatus in [QubitStatus.NONE, QubitStatus.TARGET]):
+        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.TARGET]):
             for i in range(self.N):
                 if(self.hasCX[node][i]):
                     CXGates.append(CXGate(node, i))
