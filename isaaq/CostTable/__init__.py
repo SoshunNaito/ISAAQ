@@ -1,2 +1,2 @@
-from isaaq.CostTable.CostMatrixGenerator import *
+from isaaq.CostTable.CostEstimationModelGenerator import *
 from isaaq.CostTable.DeviceCostGenerator import *

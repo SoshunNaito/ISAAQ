@@ -1,23 +1,29 @@
 import numpy as np
 
 from isaaq.Common.PhysicalDevice import *
-from isaaq.CostTable.SubModule.SwapCostMatrix import *
-from isaaq.CostTable.CostMatrixGenerator import *
+from isaaq.CostTable.SubModule.CostEstimationModel import *
+from isaaq.CostTable.CostEstimationModelGenerator import *
 
-def _GenerateCostTable(costMatrix: SwapCostMatrix) -> list[list[float]]:
+def _GenerateCostTable(costEstimationModel: CostEstimationModel) -> list[list[float]]:
+    frequency = np.zeros((costEstimationModel.numvars, costEstimationModel.numvars))
+    swapCost = np.zeros(costEstimationModel.numvars)
+
+    frequency += costEstimationModel.frequency
+    swapCost += costEstimationModel.swapCost
+
     # normalize each row
-    for idx in range(costMatrix.numvars):
-        if(abs(costMatrix.frequency[idx, idx]) < 0.00001):
+    for idx in range(costEstimationModel.numvars):
+        if(abs(frequency[idx, idx]) < 0.00001):
             rate = 1
         else:
-            rate = 1.0 / costMatrix.frequency[idx, idx]
-        costMatrix.frequency[idx, :] *= rate
-        costMatrix.swapCost[idx] *= rate
+            rate = 1.0 / frequency[idx, idx]
+        frequency[idx, :] *= rate
+        swapCost[idx] *= rate
 
-    U, S, V_t = np.linalg.svd(np.array(costMatrix.frequency), full_matrices = False)
+    U, S, V_t = np.linalg.svd(np.array(frequency), full_matrices = False)
 
-    # print("N = " + str(costMatrix.numvars))
-    # print("N_samples = " + str(costMatrix.numSamples))
+    # print("N = " + str(costEstimationModel.numvars))
+    # print("N_samples = " + str(costEstimationModel.numSamples))
     # print(U.shape)
     # print(S.shape)
     # print(V_t.shape)
@@ -34,19 +40,19 @@ def _GenerateCostTable(costMatrix: SwapCostMatrix) -> list[list[float]]:
     C = S @ V_t
 
     A2_inv = C.T @ np.linalg.inv(C @ C.T) @ np.linalg.inv(B.T @ B) @ B.T
-    X = A2_inv @ costMatrix.swapCost
+    X = A2_inv @ swapCost
 
-    ans = [[0.0 for i in range(costMatrix.N)] for j in range(costMatrix.N)]
-    for i in range(costMatrix.N):
-        for j in range(costMatrix.N):
-            idx = i * costMatrix.N + j
-            ans[i][j] = X[costMatrix.config.edgeToVariable[idx]]
+    ans = [[0.0 for i in range(costEstimationModel.N)] for j in range(costEstimationModel.N)]
+    for i in range(costEstimationModel.N):
+        for j in range(costEstimationModel.N):
+            idx = i * costEstimationModel.N + j
+            for n in range(costEstimationModel.numvars):
+                ans[i][j] += costEstimationModel.config.coefs[idx][n] * X[n]
     return ans
 
 def GenerateInitialDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    use_cache = True,
-    maxLocalInteractionDist = -1
+    use_cache = True
 ) -> PhysicalDeviceCost:
     cost_cnot = [
         [
@@ -55,18 +61,17 @@ def GenerateInitialDeviceCost(
         ]
         for i in range(graph.N)
     ]
-    matrix = GenerateInitialCostMatrix(
-        deviceCostName, graph, use_cache, maxLocalInteractionDist
+    costEstimationModel = GenerateInitialCostEstimationModel(
+        deviceCostName, graph, use_cache
     )
-    cost_swap = _GenerateCostTable(matrix)
+    cost_swap = _GenerateCostTable(costEstimationModel)
 
     deviceCost = PhysicalDeviceCost(deviceCostName, cost_cnot, cost_swap)
     return deviceCost
 
 def GenerateLearnedDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    use_cache = True,
-    maxLocalInteractionDist = -1
+    use_cache = True
 ) -> PhysicalDeviceCost:
     cost_cnot = [
         [
@@ -76,14 +81,14 @@ def GenerateLearnedDeviceCost(
         for i in range(graph.N)
     ]
 
-    initialCostMatrix = GenerateInitialCostMatrix(
-        deviceCostName, graph, True, maxLocalInteractionDist
+    initialCostEstimationModel = GenerateInitialCostEstimationModel(
+        deviceCostName, graph, True
     )
-    actualCostMatrix = GenerateActualCostMatrix(
-        deviceCostName, graph, use_cache, maxLocalInteractionDist
+    actualCostEstimationModel = GenerateActualCostEstimationModel(
+        deviceCostName, graph, use_cache
     )
-    matrix = initialCostMatrix + actualCostMatrix
-    cost_swap = _GenerateCostTable(matrix)
+    costEstimationModel = initialCostEstimationModel + actualCostEstimationModel
+    cost_swap = _GenerateCostTable(costEstimationModel)
 
     deviceCost = PhysicalDeviceCost(deviceCostName, cost_cnot, cost_swap)
     return deviceCost
