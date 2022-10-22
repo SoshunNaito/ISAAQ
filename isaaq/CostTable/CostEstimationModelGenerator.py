@@ -16,20 +16,19 @@ def _GenerateConfig(graph: PhysicalDeviceGraph) -> CostEstimationConfig:
 			config = LocallyConnectedConfig(graph.N, d, graph)
 			if((graph.N ** 2) * len(config.numvars) <= 200000): break
 	else:
-		meanDist, maxDist = 0, 0
+		meanDist = 0
 		for a in range(graph.N):
 			for b in range(graph.N):
 				d = graph.distanceTo[a][b]
 				meanDist += d
-				maxDist = max(maxDist, d)
 		meanDist /= (graph.N ** 2)
 
 		config = CommonFunctionConfig(
 			graph.N,
 			lambda a, b: [
-				graph.distanceTo[a][b],
-				meanDist,
-				maxDist / (graph.distanceTo[a][b] + 1)
+				graph.distanceTo[a][b] / meanDist,
+				1,
+				1 / (graph.distanceTo[a][b] + 1)
 			]
 		)
 	return config
