@@ -6,11 +6,11 @@ from isaaq.Construct.SubModule.RoutingCache import *
 
 import random
 
-def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: RoutingCache = None) -> list[CXGate]:
+def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: RoutingCache = None, rootMaxCount: int = 0) -> list[CXGate]:
 	ans_gates: list[CXGate] = []
 
-	if(graph.N <= 30): bfs_roots = list(range(graph.N))
-	else: bfs_roots = random.sample(list(range(graph.N)), 30)
+	if(rootMaxCount <= 0 or graph.N <= rootMaxCount): bfs_roots = list(range(graph.N))
+	else: bfs_roots = random.sample(list(range(graph.N)), min(rootMaxCount, graph.N))
 
 	for bfs_root in bfs_roots:
 		ans: list[CXGate] = []
