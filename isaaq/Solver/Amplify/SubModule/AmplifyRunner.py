@@ -86,35 +86,35 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 	for m in range(-1, M):
 		if(m == -1):
 			if(problem.left_layer != None and problem.left_strength > 0):
-				unused = [1] * problem.physicalDevice.qubits.numQubits
+				unused_counts = [s for s in problem.physicalDevice.qubits.sizes]
 				for i in range(N_in):
 					a = problem.left_layer.virtualToPhysical[i]
-					unused[a] = 0
+					unused_counts[a] -= 1
 					for j in range(len(problem.candidates[0][i])):
 						b = problem.candidates[0][i][j]
 						cost_swap += x[0][i][j] * deviceCost.cost_swap[a][b] * problem.left_strength
 				
 				d_idx = 0
-				for p_idx in range(len(unused)):
-					if(unused[p_idx] == 1):
-						for q_idx in range(problem.physicalDevice.qubits.numQubits):
+				for p_idx in range(len(unused_counts)):
+					for i in range(unused_counts[p_idx]):
+						for q_idx in range(N_out):
 							cost_swap += dummy[0][d_idx][q_idx] * deviceCost.cost_swap[p_idx][q_idx] * problem.left_strength
 						d_idx += 1
 
 		elif(m == M - 1):
 			if(problem.right_layer != None and problem.right_strength > 0):
-				unused = [1] * problem.physicalDevice.qubits.numQubits
+				unused_counts = [s for s in problem.physicalDevice.qubits.sizes]
 				for i in range(N_in):
 					b = problem.right_layer.virtualToPhysical[i]
-					unused[b] = 0
+					unused_counts[b] -= 1
 					for j in range(len(problem.candidates[M - 1][i])):
 						a = problem.candidates[M - 1][i][j]
 						cost_swap += x[M - 1][i][j] * deviceCost.cost_swap[a][b] * problem.right_strength
 
 				d_idx = 0
-				for q_idx in range(len(unused)):
-					if(unused[q_idx] == 1):
-						for p_idx in range(problem.physicalDevice.qubits.numQubits):
+				for q_idx in range(len(unused_counts)):
+					for i in range(unused_counts[q_idx]):
+						for p_idx in range(N_out):
 							cost_swap += dummy[M - 1][d_idx][p_idx] * deviceCost.cost_swap[p_idx][q_idx] * problem.right_strength
 						d_idx += 1
 		else:
@@ -126,8 +126,8 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 						cost_swap += x[m][i][j] * x[m + 1][i][k] * deviceCost.cost_swap[a][b]
 
 			for i in range(N_dummy):
-				for a in range(problem.physicalDevice.qubits.numQubits):
-					for b in range(problem.physicalDevice.qubits.numQubits):
+				for a in range(N_out):
+					for b in range(N_out):
 						cost_swap += dummy[m][i][a] * dummy[m + 1][i][b] * deviceCost.cost_swap[a][b]
 
 	cost = cost_cnot + cost_swap
