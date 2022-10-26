@@ -14,20 +14,33 @@ class CostEstimationModel:
 		self.swapCost = np.zeros(self.numvars)
 
 	def Add(self, permutation: list[int], cost: int):
-		v1: list[Tuple(int, int)] = []
-		v2: list[Tuple(int, int)] = []
+		v1: list[Tuple(int, float)] = []
+		v2: list[Tuple(int, float)] = []
 
+		unused_old, unused_new = [], [1] * len(permutation)
 		for a in range(len(permutation)):
 			b = permutation[a]
-			if(b == -1): continue
-			v1.append(a * self.N + b)
-			v2.append(b * self.N + a)
+			if(b == -1):
+				unused_old.append(a)
+				continue
+			v1.append((a * self.N + b, 1))
+			v2.append((b * self.N + a, 1))
+
+			unused_new[b] = 0
+		
+		for b in range(len(permutation)):
+			if(unused_new[b] == 0): continue
+
+			weight = 1 / len(unused_old)
+			for a in unused_old:
+				v1.append((a * self.N + b, weight))
+				v2.append((b * self.N + a, weight))
 
 		# 対称性を確保するため、逆方向の置換もサンプルに加える
 		for v in [v1, v2]:
 			dc = np.zeros(self.numvars)
-			for idx in v:
-				dc += np.array(self.config.coefs[idx])
+			for idx, weight in v:
+				dc += np.array(self.config.coefs[idx]) * weight
 
 			self.frequency += dc.reshape(self.numvars, 1) @ dc.reshape(1, self.numvars)
 			self.swapCost += cost * dc
