@@ -17,24 +17,11 @@ class CostEstimationModel:
 		v1: list[Tuple(int, float)] = []
 		v2: list[Tuple(int, float)] = []
 
-		unused_old, unused_new = [], [1] * len(permutation)
 		for a in range(len(permutation)):
 			b = permutation[a]
-			if(b == -1):
-				unused_old.append(a)
-				continue
+			if(b == -1): continue
 			v1.append((a * self.N + b, 1))
 			v2.append((b * self.N + a, 1))
-
-			unused_new[b] = 0
-		
-		for b in range(len(permutation)):
-			if(unused_new[b] == 0): continue
-
-			weight = 1 / len(unused_old)
-			for a in unused_old:
-				v1.append((a * self.N + b, weight))
-				v2.append((b * self.N + a, weight))
 
 		# 対称性を確保するため、逆方向の置換もサンプルに加える
 		for v in [v1, v2]:
