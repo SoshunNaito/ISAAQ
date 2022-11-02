@@ -35,9 +35,6 @@ def SolveClusteredMapping(
                     clusteringResult.clusterDevices[i], mappingProblem.layers,
                     [
                         [
-                            # [
-                            #     n for n in clusteringResult.clusterMappings[i][layer.virtualToPhysical[v]]
-                            # ]
                             list(graph.neighbours[layer.virtualToPhysical[v]] | {layer.virtualToPhysical[v]})
                             for v in range(inputCircuit.numQubits)
                         ] for layer in mappingResult.layers

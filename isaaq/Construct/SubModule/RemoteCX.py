@@ -100,10 +100,7 @@ def _Approx_CX_tree(x: int, next: list[list[int]], isSrc: list[bool]) -> list[CX
 		ans.append(CXGate(y, x))
 	return ans
 
-def _RemoteCX_main(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
-	if(len(srcList) == 0): return []
-	if(len(srcList) == 1): return _Exact_CX_line(srcList[0], dst, graph)
-
+def _RemoteCX_tree(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
 	parent, rootToLeaf = GetParentNodes(srcList, dst, graph)
 	srcRoots: list[int] = []
 	isSrc: list[bool] = [False] * graph.N
@@ -127,10 +124,76 @@ def _RemoteCX_main(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> 
 	for x in rootToLeaf:
 		if(parent[x] != -1): ans += _Approx_CX_line(srcList[x], srcList[parent[x]], graph)
 
-	# print(str(srcList) + " -> " + str(dst))
-	# print("\n".join(["\t" + str(g) for g in ans]))
-	
 	return ans
+
+def _RemoteCX_hub(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
+	if(graph.N <= 50): hub_candidates = list(range(graph.N))
+	else: hub_candidates = list(range(0, graph.N, graph.N // 20))
+
+	hub, cost = -1, graph.N * len(srcList) * 1000
+	for h in hub_candidates:
+		c = 0
+		if(h == dst):
+			for src in srcList:
+				c += max(1, 4 * (graph.distanceTo[src][dst] - 1))
+		elif h in srcList:
+			for src in srcList:
+				if(src == h):
+					c += max(1, 4 * (graph.distanceTo[src][dst] - 1))
+				else:
+					c0 = max(1, 4 * (graph.distanceTo[src][dst] - 1))
+					c1 = 2 * max(1, 2 * graph.distanceTo[src][h] - 1)
+					c += min(c0, c1)
+		else:
+			c += 2 * max(1, 2 * graph.distanceTo[h][dst] - 1)
+			for src in srcList:
+				c0 = max(1, 4 * (graph.distanceTo[src][dst] - 1))
+				c1 = 2 * max(1, 2 * graph.distanceTo[src][h] - 1)
+				c += min(c0, c1)
+		if(c < cost):
+			hub = h
+			cost = c
+	
+	ans: list[CXGate] = []
+	if(hub == dst):
+		for src in srcList: ans += _Exact_CX_line(src, dst, graph)
+	elif hub in srcList:
+		S0, S1 = [hub], []
+		for src in srcList:
+			if(src == hub): continue
+			c0 = max(1, 4 * (graph.distanceTo[src][dst] - 1))
+			c1 = 2 * max(1, 2 * graph.distanceTo[src][hub] - 1)
+			if(c0 < c1): S0.append(src)
+			else: S1.append(src)
+
+		for src in S1: ans += _Approx_CX_line(src, hub, graph)
+		for src in S0: ans += _Exact_CX_line(src, dst, graph)
+		for src in S1: ans += _Approx_CX_line(src, hub, graph)
+	else:
+		S0, S1 = [], []
+		for src in srcList:
+			c0 = max(1, 4 * (graph.distanceTo[src][dst] - 1))
+			c1 = 2 * max(1, 2 * graph.distanceTo[src][hub] - 1)
+			if(c0 < c1): S0.append(src)
+			else: S1.append(src)
+
+		for src in S0: ans += _Exact_CX_line(src, dst, graph)
+
+		for src in S1: ans += _Approx_CX_line(src, hub, graph)
+		ans += _Approx_CX_line(hub, dst, graph)
+		for src in S1: ans += _Approx_CX_line(src, hub, graph)
+		ans += _Approx_CX_line(hub, dst, graph)
+	return ans
+
+def _RemoteCX_main(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
+	if(len(srcList) == 0): return []
+	if(len(srcList) == 1): return _Exact_CX_line(srcList[0], dst, graph)
+
+	ans_tree = _RemoteCX_tree(srcList, dst, graph)
+	ans_hub = _RemoteCX_hub(srcList, dst, graph)
+
+	if(len(ans_tree) < len(ans_hub)): return ans_tree
+	else: return ans_hub
 
 def RemoteCX(CXGates: list[CXGate], graph: PhysicalDeviceGraph) -> list[CXGate]:
 	srcQubits, dstQubits = set(), set()
