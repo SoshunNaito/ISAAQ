@@ -2,6 +2,8 @@ from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 from typing import Tuple
 
+import random
+
 class _RoutingNode:
 	def __init__(self, depth: int, back: list[int] = None, pair: Tuple[int, int] = None):
 		self.depth = depth
@@ -9,10 +11,14 @@ class _RoutingNode:
 		self.pair = pair
 
 class RoutingCache:
-	def __init__(self, graph: PhysicalDeviceGraph, maxCacheSize = 10000):
+	def __init__(self, graph: PhysicalDeviceGraph, maxCacheSize: int = -1, rootToLeafTableSize: int = 0):
+		if(maxCacheSize == -1): maxCacheSize = 1000000 // graph.N
+
 		self.graph: PhysicalDeviceGraph = graph
 		self.maxCacheSize: int = maxCacheSize
+		self.rootToLeafTableSize: int = rootToLeafTableSize
 		self._CreateCacheTable()
+		self._CreateRootToLeafTable()
 
 	def _CreateCacheTable(self):
 		self.cacheTable: dict[list[int], _RoutingNode] = {}
@@ -31,6 +37,28 @@ class RoutingCache:
 					continue
 				q.append(Y)
 				self.cacheTable[str(Y)] = _RoutingNode(depth + 3, X, (u, v))
+
+	def _CreateRootToLeafTable(self):
+		self.rootToLeafTable: list[list[int]] = []
+		for t in range(self.rootToLeafTableSize):
+			bfsOrder: list[int] = [-1 for i in range(self.graph.N)]
+			weights: list[int] = [0 for i in range(self.graph.N)]
+			
+			for i in range(self.graph.N):
+				if(i == 0):
+					x = random.randrange(self.graph.N)
+				else:
+					x = random.choices(list(range(self.graph.N)), weights = weights, k = 1)[0]
+				bfsOrder[x] = i
+				weights[x] = 0
+
+				for y in self.graph.neighbours[x]:
+					if(bfsOrder[y] == -1): weights[y] += 1
+
+			rootToLeaf: list[int] = [-1 for i in range(self.graph.N)]
+			for i in range(self.graph.N): rootToLeaf[bfsOrder[i]] = i
+
+			self.rootToLeafTable.append(rootToLeaf)
 	
 	def Contains(self, placeToContent: list[int]) -> bool:
 		return (str(placeToContent) in self.cacheTable.keys())

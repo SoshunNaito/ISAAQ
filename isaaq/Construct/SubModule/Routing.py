@@ -9,10 +9,16 @@ import random
 def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: RoutingCache = None, rootMaxCount: int = 0) -> list[CXGate]:
 	ans_gates: list[CXGate] = []
 
-	if(rootMaxCount <= 0 or graph.N <= rootMaxCount): bfs_roots = list(range(graph.N))
-	else: bfs_roots = random.sample(list(range(graph.N)), min(rootMaxCount, graph.N))
+	if(rootMaxCount <= 0 or graph.N <= rootMaxCount):
+		rootToLeafTable = [graph.rootToLeaf[i] for i in range(graph.N)]
+	else:
+		rootToLeafTable = [
+			graph.rootToLeaf[i]
+			for i in random.sample(list(range(graph.N)), min(rootMaxCount, graph.N))
+		]
 
-	for bfs_root in bfs_roots:
+	# for bfs_root in bfs_roots:
+	for rootToLeaf in rootToLeafTable + cache.rootToLeafTable:
 		ans: list[CXGate] = []
 
 		isFixed: list[bool] = [False] * graph.N
@@ -26,7 +32,7 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 		distFromSrc = [INF] * graph.N
 		backToSrc = [-1] * graph.N
 		
-		for dst in graph.rootToLeaf[bfs_root][::-1]:
+		for dst in rootToLeaf[::-1]:
 			touchedNodes: list[int] = []
 
 			src = contentToPlace[dst] # srcにある中身をdstに持っていきたい
