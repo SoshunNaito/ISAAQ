@@ -49,6 +49,7 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 					if(distFromSrc[x] != dist_idx): continue
 					if(x == dst):
 						dist_idx = len(distToNodes)
+						isFixed[dst] = True
 						break
 
 					for y in graph.neighbours[x]:
