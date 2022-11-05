@@ -4,9 +4,11 @@ from isaaq.Scheduler import BaseQAPScheduler
 from isaaq.Clustering import ClusteringResult
 
 def SolveClusteredMapping(
-    inputCircuit: QuantumCircuit, layerSize: int,
+    inputCircuit: QuantumCircuit,
     clusteringResult: ClusteringResult, 
     QAPScheduler: BaseQAPScheduler,
+    maxLayerSize: int = -1,
+    minLayerCount: int = 1,
     useLocalSearch: bool = False
 ) -> QubitMapping:
 
@@ -14,7 +16,11 @@ def SolveClusteredMapping(
     mappingResult: QubitMapping = None
     for i in range(clusteringResult.numClusterDevices):
         if(i == 0):
-            mappingProblem = GenerateMappingProblem(inputCircuit, clusteringResult.clusterDevices[0], maxLayerSize = layerSize)
+            mappingProblem = GenerateMappingProblem(
+                inputCircuit,
+                clusteringResult.clusterDevices[0],
+                maxLayerSize, minLayerCount
+            )
             mappingResult = QAPScheduler.solve(mappingProblem)
         else:
             mappingProblem = QubitMappingProblem(
