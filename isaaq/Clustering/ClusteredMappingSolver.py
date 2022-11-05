@@ -29,17 +29,17 @@ def SolveClusteredMapping(
             )
             mappingResult = QAPScheduler.solve(mappingProblem)
 
-            if(useLocalSearch):
-                graph = clusteringResult.clusterDevices[i].graph
-                mappingProblem = QubitMappingProblem(
-                    clusteringResult.clusterDevices[i], mappingProblem.layers,
+        if(useLocalSearch):
+            graph = clusteringResult.clusterDevices[i].graph
+            mappingProblem = QubitMappingProblem(
+                clusteringResult.clusterDevices[i], mappingProblem.layers,
+                [
                     [
-                        [
-                            list(graph.neighbours[layer.virtualToPhysical[v]] | {layer.virtualToPhysical[v]})
-                            for v in range(inputCircuit.numQubits)
-                        ] for layer in mappingResult.layers
-                    ]
-                )
-                mappingResult = QAPScheduler.solve(mappingProblem)
+                        list(graph.neighbours[layer.virtualToPhysical[v]] | {layer.virtualToPhysical[v]})
+                        for v in range(inputCircuit.numQubits)
+                    ] for layer in mappingResult.layers
+                ]
+            )
+            mappingResult = QAPScheduler.solve(mappingProblem)
 
     return mappingResult
