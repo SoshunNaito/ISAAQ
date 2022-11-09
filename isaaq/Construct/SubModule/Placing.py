@@ -1,12 +1,11 @@
 from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.Construct.SubModule.RemoteCX import *
-
-from isaaq.Construct.SubModule.QuantumGateStack import *
+from isaaq.Common.QuantumGateStack import *
 
 def Placing(virtualGates: list[BaseGate], virtualToPhysical: list[int], graph: PhysicalDeviceGraph) -> list[BaseGate]:
     ans: list[BaseGate] = []
-    stack = PhysicalGateStack(graph.N)
+    stack = QuantumGateStack(graph.N)
 
     for gate in virtualGates:
         if(isinstance(gate, U3Gate)):

@@ -4,12 +4,12 @@ import networkx as nx
 
 from isaaq.Common.QuantumGates import *
 
-class QubitStatus(Enum):
+class _QubitStatus(Enum):
     NONE = 0
     CONTROL = 1
     TARGET = 2
 
-class PhysicalGateStack:
+class QuantumGateStack:
     def __init__(self, N: int):
         self.N = N
 
@@ -18,7 +18,7 @@ class PhysicalGateStack:
         # CXの右に積み重なった1ビットゲート
         self.singleGateStack: list[list[BaseGate]] = [[] for i in range(N)]
         # 各qubitの状態
-        self.qubitStatus: list[int] = [QubitStatus.NONE for i in range(N)]
+        self.qubitStatus: list[int] = [_QubitStatus.NONE for i in range(N)]
 
     def CountCX(self, node: int, isControl: bool):
         ans = 0
@@ -43,18 +43,18 @@ class PhysicalGateStack:
         self.hasCX[src][dst] = ~self.hasCX[src][dst]
         
 
-    def PopGates(self, node: int, nextStatus: QubitStatus = QubitStatus.NONE) -> Tuple[list[BaseGate], list[BaseGate]]:
+    def PopGates(self, node: int, nextStatus: _QubitStatus = _QubitStatus.NONE) -> Tuple[list[BaseGate], list[BaseGate]]:
         CXGates: list[CXGate] = []
         singleGates: list[Union[U3Gate, MeasureGate]] = [g for g in self.singleGateStack[node]]
         self.singleGateStack[node].clear()
 
-        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.CONTROL]):
+        if(len(singleGates) > 0 or nextStatus in [_QubitStatus.NONE, _QubitStatus.CONTROL]):
             for i in range(self.N):
                 if(self.hasCX[i][node]):
                     CXGates.append(CXGate(i, node))
                     self.hasCX[i][node] = False
 
-        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.TARGET]):
+        if(len(singleGates) > 0 or nextStatus in [_QubitStatus.NONE, _QubitStatus.TARGET]):
             for i in range(self.N):
                 if(self.hasCX[node][i]):
                     CXGates.append(CXGate(node, i))
