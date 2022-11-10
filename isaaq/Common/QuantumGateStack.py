@@ -43,22 +43,38 @@ class QuantumGateStack:
         self.hasCX[src][dst] = ~self.hasCX[src][dst]
         
 
-    def PopGates(self, node: int, nextStatus: QubitStatus = QubitStatus.NONE) -> Tuple[list[BaseGate], list[BaseGate]]:
+    def PopGates(self, node: int, nextStatus: QubitStatus) -> Tuple[list[BaseGate], list[BaseGate]]:
         CXGates: list[CXGate] = []
         singleGates: list[Union[U3Gate, MeasureGate]] = [g for g in self.singleGateStack[node]]
         self.singleGateStack[node].clear()
 
-        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.CONTROL]):
+        if(len(singleGates) > 0 or nextStatus == QubitStatus.CONTROL):
+            n = node
             for i in range(self.N):
                 if(self.hasCX[i][node]):
                     CXGates.append(CXGate(i, node))
                     self.hasCX[i][node] = False
+                    n = i
+            
+            if(len(CXGates) == 1):
+                for i in range(self.N):
+                    if(self.hasCX[n][i]):
+                        CXGates.append(CXGate(n, i))
+                        self.hasCX[n][i] = False
 
-        if(len(singleGates) > 0 or nextStatus in [QubitStatus.NONE, QubitStatus.TARGET]):
+        if(len(singleGates) > 0 or nextStatus == QubitStatus.TARGET):
+            n = node
             for i in range(self.N):
                 if(self.hasCX[node][i]):
                     CXGates.append(CXGate(node, i))
                     self.hasCX[node][i] = False
+                    n = i
+            
+            if(len(CXGates) == 1):
+                for i in range(self.N):
+                    if(self.hasCX[i][n]):
+                        CXGates.append(CXGate(i, n))
+                        self.hasCX[n][i] = False
         
         return (CXGates, singleGates)
 
