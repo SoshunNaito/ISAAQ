@@ -91,6 +91,7 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 					for j in range(len(problem.candidates[0][i])):
 						b = problem.candidates[0][i][j]
 						cost_swap += x[0][i][j] * deviceCost.cost_swap[a][b] * problem.left_strength
+
 		elif(m == M - 1):
 			if(problem.right_layer != None and problem.right_strength > 0):
 				for i in range(N_in):
