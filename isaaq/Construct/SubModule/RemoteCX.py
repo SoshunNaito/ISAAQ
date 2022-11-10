@@ -4,6 +4,7 @@ from isaaq.Common.QuantumGates import *
 from isaaq.Common.PhysicalDevice import *
 
 def _Approx_CX_line(src: int, dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
+	if(graph.distanceTo[src][dst] == 1): return [CXGate(src, dst)]
 	ans = []
 	x = dst
 	while(True):
@@ -118,22 +119,26 @@ def _RemoteCX_hub(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> l
 		for src in S0: ans += _Exact_CX_line(src, dst, graph)
 
 		for src in S1: ans += _Approx_CX_line(src, hub, graph)
-		ans += _Approx_CX_line(hub, dst, graph)
+		ans += [CXGate(gate.Qubit_dst, gate.Qubit_src) for gate in _Approx_CX_line(dst, hub, graph)]
 		for src in S1: ans += _Approx_CX_line(src, hub, graph)
-		ans += _Approx_CX_line(hub, dst, graph)
+		ans += [CXGate(gate.Qubit_dst, gate.Qubit_src) for gate in _Approx_CX_line(dst, hub, graph)]
+
+	if(len(ans) != cost):
+		raise RuntimeError("len(ans) != cost")
 	return ans
 
 def _RemoteCX_main(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> list[CXGate]:
 	if(len(srcList) == 0): return []
 	if(len(srcList) == 1): return _Exact_CX_line(srcList[0], dst, graph)
 
-	ans_tree = _RemoteCX_tree(srcList, dst, graph)
+	# ans_tree = _RemoteCX_tree(srcList, dst, graph)
 	ans_hub = _RemoteCX_hub(srcList, dst, graph)
 
-	if(len(ans_tree) != len(ans_hub)): print(str(len(ans_hub)) + " vs " + str(len(ans_tree)))
+	# if(len(ans_tree) != len(ans_hub)): print(str(len(ans_hub)) + " vs " + str(len(ans_tree)))
 
-	if(len(ans_tree) < len(ans_hub)): return ans_tree
-	else: return ans_hub
+	# if(len(ans_tree) < len(ans_hub)): return ans_tree
+	# else: return ans_hub
+	return ans_hub
 
 def RemoteCX(CXGates: list[CXGate], graph: PhysicalDeviceGraph) -> list[CXGate]:
 	srcQubits, dstQubits = set(), set()
