@@ -51,7 +51,7 @@ def RemoveDuplicateGates(N: int, gates: list[BaseGate]) -> list[BaseGate]:
 
 def RefineCircuit(circuit: QuantumCircuit) -> QuantumCircuit:
 	gates_src: list[BaseGate] = [g for g in circuit.gates]
-	factor: int = 4
+	factor: int = 10
 	D = factor
 	while(D < len(gates_src) * factor):
 		gates_dst: list[BaseGate] = []
