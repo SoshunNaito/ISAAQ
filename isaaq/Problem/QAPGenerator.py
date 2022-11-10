@@ -13,9 +13,7 @@ def GenerateQAPList(problem: QubitMappingProblem, max_binary_variables: int = -1
 	if(max_binary_variables == -1):
 		max_binary_variables = size_sum
 
-	if(max_binary_variables < size_max):
-		print("1レイヤーがバイナリ変数の最大値を超えています")
-		max_binary_variables = size_max
+	if(max_binary_variables < size_max): max_binary_variables = size_max
 
 	ans = [QubitMappingProblem(problem.physicalDevice)]
 	size_sum = 0

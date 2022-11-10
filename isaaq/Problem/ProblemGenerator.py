@@ -49,7 +49,7 @@ def RemoveDuplicateGates(N: int, gates: list[BaseGate]) -> list[BaseGate]:
 
 	return ans
 
-def RefineCircuit(circuit: QuantumCircuit) -> QuantumCircuit:
+def SimplifyCircuit(circuit: QuantumCircuit) -> QuantumCircuit:
 	gates_src: list[BaseGate] = [g for g in circuit.gates]
 	factor: int = 10
 	D = factor
@@ -73,13 +73,12 @@ def RefineCircuit(circuit: QuantumCircuit) -> QuantumCircuit:
 
 def GenerateMappingProblem(
 	circuit: QuantumCircuit, device: PhysicalDevice,
-	maxLayerSize: int = -1, minLayerCount: int = 1
+	maxLayerSize: int = -1, minLayerCount: int = 1,
+	simplifyCircuit: bool = False
 ) -> QubitMappingProblem:
 
-	print("before = " + str(len(circuit.gates)))
-	circuit = RefineCircuit(circuit)
-	print("after = " + str(len(circuit.gates)))
-
+	if(simplifyCircuit): circuit = SimplifyCircuit(circuit)
+	
 	Qubits = VirtualQubits(len(circuit.indexToQubit))
 	layers = [QubitMappingLayer(Qubits)]
 	CX_count = 0
