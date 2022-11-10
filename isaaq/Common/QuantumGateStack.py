@@ -74,7 +74,7 @@ class QuantumGateStack:
                 for i in range(self.N):
                     if(self.hasCX[i][n]):
                         CXGates.append(CXGate(i, n))
-                        self.hasCX[n][i] = False
+                        self.hasCX[i][n] = False
         
         return (CXGates, singleGates)
 
