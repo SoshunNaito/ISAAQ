@@ -14,7 +14,7 @@ def _GenerateConfig(graph: PhysicalDeviceGraph) -> CostEstimationConfig:
 		config = None
 		for d in range(-1, 6)[::-1]:
 			config = LocallyConnectedConfig(graph.N, d, graph)
-			if((graph.N ** 2) * len(config.numvars) <= 200000): break
+			if((graph.N ** 2) * config.numvars <= 200000): break
 	else:
 		meanDist = 0
 		for a in range(graph.N):
