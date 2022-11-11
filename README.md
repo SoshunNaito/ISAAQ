@@ -8,23 +8,53 @@ pip install git+https://github.com/SoshunNaito/ISAAQ.git
 
 # Example
 ```
-# prepare
-circuit_in = ImportCircuit("<path_to_input_circuit>")
-device = ImportDevice("<name_of_physical_device>")
-problem = GenerateMappingProblem(circuit_in, device)
+from isaaq.IO import *
+from isaaq.Clustering import *
+from isaaq.Scheduler import *
+from isaaq.Solver import AmplifySolver, AmplifySettings
+from isaaq.Construct import ConstructCircuit
 
-# solve
+##### device preparation #####
+originalDevice = ImportDevice("<name_of_device>", refreshCostTable = True)
+clusteringProblem = ClusteringProblem(originalDevice, numClusterDevices = 5)
+clusteringResult = SolveClusteringProblem(
+    clusteringProblem,
+    clusterCostFunc = lambda values, weights:
+        sum([values[i] * weights[i] for i in range(len(weights))]) / sum(weights)
+)
+print("device prepared")
+
+
+##### circuit preparation #####
+inputCircuit = ImportCircuit("<path_to_circuit>")
+print("circuit prepared")
+
+
+##### solver preparation #####
 solver = AmplifySolver(
 	settings = AmplifySettings(
-		token = "<your_own_amplify_token>",
+		token = "********************************",
 		timeout = 1000,
-		max_binary_variables = 1200,
+		max_binary_variables = 2000,
+		max_num_machines = 1,
+        constraint_strength = 2.0
 	)
 )
-scheduler = SequentialQAPScheduler(solver)
-answer = scheduler.solve(problem)
+scheduler = BinaryQAPScheduler(solver)
+print("solver prepared")
 
-# export
-circuit_out = ConstructCircuit(circuit_in, answer)
-ExportCircuit(circuit_out, "<path_to_output_circuit>")
+
+##### solve mapping problem & construct circuit
+mappingResult = SolveClusteredMapping(
+    inputCircuit, clusteringResult, scheduler,
+    maxLayerSize = 30,
+    minLayerCount = 10,
+    simplifyCircuit = True,
+    useLocalSearch = True
+)
+outputCircuit = ConstructCircuit(
+    inputCircuit, mappingResult,
+    routingCache = None,
+    addRoutingLog = True
+)
 ```
