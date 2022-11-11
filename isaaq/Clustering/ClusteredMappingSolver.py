@@ -9,6 +9,7 @@ def SolveClusteredMapping(
     QAPScheduler: BaseQAPScheduler,
     maxLayerSize: int = -1,
     minLayerCount: int = 1,
+    simplifyCircuit: bool = False,
     useLocalSearch: bool = False
 ) -> QubitMapping:
 
@@ -19,7 +20,7 @@ def SolveClusteredMapping(
             mappingProblem = GenerateMappingProblem(
                 inputCircuit,
                 clusteringResult.clusterDevices[0],
-                maxLayerSize, minLayerCount
+                maxLayerSize, minLayerCount, simplifyCircuit
             )
             mappingResult = QAPScheduler.solve(mappingProblem)
         else:
