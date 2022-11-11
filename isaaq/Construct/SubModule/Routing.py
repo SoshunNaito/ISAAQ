@@ -18,9 +18,10 @@ def Routing(physicalToPhysical: list[int], graph: PhysicalDeviceGraph, cache: Ro
 		]
 	diffListTable = [None] * len(rootToLeafTable)
 
-	for i in range(cache.rootToLeafTableSize):
-		rootToLeafTable.append(cache.rootToLeafTable[i])
-		diffListTable.append(cache.diffListTable[i])
+	if(cache != None):
+		for i in range(cache.rootToLeafTableSize):
+			rootToLeafTable.append(cache.rootToLeafTable[i])
+			diffListTable.append(cache.diffListTable[i])
 
 	# for bfs_root in bfs_roots:
 	for root_idx in range(len(rootToLeafTable)):
