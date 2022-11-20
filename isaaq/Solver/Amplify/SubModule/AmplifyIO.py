@@ -35,6 +35,11 @@ def _ImportRuntimeSettings(filepath: str) -> AmplifyRuntimeSettings:
 def _ExportRuntimeInfo(info: AmplifyRuntimeInfo, filepath: str):
 	S = []
 	S.append(str(info.constraint_strength) + "\n")
+	S.append(str(info.num_trials) + "\n")
+	S.append(str(info.elapsed_time) + "\n")
+	S.append(str(info.execution_time) + "\n")
+	S.append(str(info.cpu_time) + "\n")
+	S.append(str(info.queue_time) + "\n")
 
 	with open(filepath, "w") as f:
 		f.writelines(S)
@@ -44,9 +49,19 @@ def _ImportRuntimeInfo(filepath: str) -> AmplifyRuntimeInfo:
 		S = f.readlines()
 	
 	constraint_strength = float(S[0].strip())
+	num_trials = int(S[1].strip())
+	elapsed_time = int(S[2].strip())
+	execution_time = int(S[3].strip())
+	cpu_time = int(S[4].strip())
+	queue_time = int(S[5].strip())
 	
 	return AmplifyRuntimeInfo(
-		constraint_strength
+		constraint_strength,
+		num_trials,
+		elapsed_time,
+		execution_time,
+		cpu_time,
+		queue_time
 	)
 
 
