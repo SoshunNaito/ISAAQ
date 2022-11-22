@@ -15,7 +15,7 @@ import wrapt_timeout_decorator
 # solve with Amplify
 def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyRuntimeInfo:
 
-	@wrapt_timeout_decorator.timeout_exe_msec(dec_timeout=settings.timeout_total_sec)
+	@wrapt_timeout_decorator.timeout(dec_timeout=settings.timeout_total_sec)
 	def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyRuntimeInfo:
 		solve_start_time = time.time()
 
@@ -157,7 +157,8 @@ if __name__ == "__main__":
 
 	try:
 		info = solve(problem, settings, id)
-	except:
+	except Exception as e:
+		print(e)
 		info = AmplifyRuntimeInfo()
 		info.success = False
 		ExportResult(None, info, id)
