@@ -8,6 +8,7 @@ class AmplifyRuntimeSettings:
 
 @dataclass
 class AmplifyRuntimeInfo:
+	success: bool = True
 	constraint_strength: float = 0
 	num_trials: int = 0
 	elapsed_time: int = 0
