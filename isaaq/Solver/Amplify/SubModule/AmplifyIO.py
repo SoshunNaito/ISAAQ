@@ -12,7 +12,7 @@ from typing import Tuple
 def _ExportRuntimeSettings(settings: AmplifyRuntimeSettings, filepath: str):
 	S = []
 	S.append(settings.token + "\n")
-	S.append(str(settings.timeout) + "\n")
+	S.append(str(settings.timeout_exe_msec) + "\n")
 	S.append(str(settings.constraint_strength) + "\n")
 	S.append(str(settings.timeout_total_sec) + "\n")
 
@@ -24,14 +24,14 @@ def _ImportRuntimeSettings(filepath: str) -> AmplifyRuntimeSettings:
 		S = f.readlines()
 	
 	token = S[0].strip()
-	timeout = int(S[1].strip())
+	timeout_exe_msec = int(S[1].strip())
 	constraint_strength = float(S[2].strip())
 	try: timeout_total_sec = float(S[3].strip())
 	except: timeout_total_sec = None
 
 	return AmplifyRuntimeSettings(
 		token,
-		timeout,
+		timeout_exe_msec,
 		constraint_strength,
 		timeout_total_sec
 	)

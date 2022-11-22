@@ -3,7 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class AmplifyRuntimeSettings:
 	token: str = ""
-	timeout: int = 1000
+	timeout_exe_msec: int = 1000
 	constraint_strength: float = 1.0
 	timeout_total_sec: float = None
 

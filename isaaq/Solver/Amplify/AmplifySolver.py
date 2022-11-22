@@ -30,7 +30,7 @@ class AmplifySolver(BaseQAPSolver):
 		self.token = self.settings.token
 		self.max_binary_variables = self.settings.max_binary_variables
 		self.max_num_machines = self.settings.max_num_machines
-		self.timeout = self.settings.timeout
+		self.timeout_exe_msec = self.settings.timeout_exe_msec
 		self.constraint_strength = self.settings.constraint_strength
 
 	def solve(self, problem: QubitMappingProblem) -> QubitMapping:
@@ -42,7 +42,7 @@ class AmplifySolver(BaseQAPSolver):
 			problem = problems[n]
 			ExportProblem(
 				problem,
-				AmplifyRuntimeSettings(self.token, self.timeout, self.constraint_strength),
+				AmplifyRuntimeSettings(self.token, self.timeout_exe_msec, self.constraint_strength),
 				ids[n]
 			)
 		with ThreadPoolExecutor(max_workers = self.max_num_machines) as pool:

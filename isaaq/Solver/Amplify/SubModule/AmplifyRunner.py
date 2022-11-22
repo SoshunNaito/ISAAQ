@@ -15,7 +15,7 @@ import wrapt_timeout_decorator
 # solve with Amplify
 def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyRuntimeInfo:
 
-	@wrapt_timeout_decorator.timeout(dec_timeout=settings.timeout_total)
+	@wrapt_timeout_decorator.timeout_exe_msec(dec_timeout=settings.timeout_total_sec)
 	def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyRuntimeInfo:
 		solve_start_time = time.time()
 
@@ -108,7 +108,7 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 		cost = cost_cnot + cost_swap
 		cost /= cx_count
 
-		client.parameters.timeout = settings.timeout
+		client.parameters.timeout = settings.timeout_exe_msec
 		solver = Solver(client)
 
 		max_strength = settings.constraint_strength * (2 ** 50)
