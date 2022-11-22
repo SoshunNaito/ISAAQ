@@ -2,9 +2,10 @@ from dataclasses import dataclass
 
 @dataclass
 class AmplifyRuntimeSettings:
-	token: str
-	timeout: int
-	constraint_strength: float
+	token: str = ""
+	timeout: int = 1000
+	constraint_strength: float = 1.0
+	timeout_total: float = None
 
 @dataclass
 class AmplifyRuntimeInfo:
