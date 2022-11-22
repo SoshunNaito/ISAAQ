@@ -5,7 +5,7 @@ class AmplifyRuntimeSettings:
 	token: str = ""
 	timeout: int = 1000
 	constraint_strength: float = 1.0
-	timeout_total: float = None
+	timeout_total_sec: float = None
 
 @dataclass
 class AmplifyRuntimeInfo:
