@@ -1,7 +1,7 @@
 from isaaq.Common.QuantumCircuit import *
 from isaaq.Common.QuantumGates import *
 
-import re
+import ahocorasick
 
 def ReadGate(s: str) -> BaseGate:
 	if(s[:7] == "barrier"):
@@ -26,6 +26,11 @@ def ImportCircuit(filepath: str) -> QuantumCircuit:
 		S = f.readlines()
 
 	##########   detect variables   ##########
+	automaton_Qbit = ahocorasick.Automaton()
+	automaton_Cbit = ahocorasick.Automaton()
+
+	automaton_Qbit.add_word("automaton_Qbit_dummy", "automaton_Qbit_dummy")
+	automaton_Cbit.add_word("automaton_Cbit_dummy", "automaton_Cbit_dummy")
 
 	for s in S:
 		A = s.split()
@@ -34,12 +39,21 @@ def ImportCircuit(filepath: str) -> QuantumCircuit:
 			var_name = A[1][:i]
 			var_count = int(A[1][i+1:j])
 			QC.AddQubits(var_name, var_count)
+			for i in range(var_count):
+				var = var_name + "[" + str(i) + "]"
+				automaton_Qbit.add_word(var, var)
 
 		if(A[0] == "creg"):
 			i,j = A[1].find("["), A[1].find("]")
 			var_name = A[1][:i]
 			var_count = int(A[1][i+1:j])
 			QC.AddCbits(var_name, var_count)
+			for i in range(var_count):
+				var = var_name + "[" + str(i) + "]"
+				automaton_Cbit.add_word(var, var)
+
+	automaton_Qbit.make_automaton()
+	automaton_Cbit.make_automaton()
 
 	##########   detect gates   ##########
 
@@ -49,14 +63,16 @@ def ImportCircuit(filepath: str) -> QuantumCircuit:
 			if(s[:4] == "qreg" or s[:4] == "creg" or s[:8] == "OPENQASM" or s[:7] == "include"): continue
 			s = s.replace(";","").replace("u3(","u(")
 
-			for (name, _) in QC.Qubits:
-				vars = re.findall(name + "\[[0-9]+\]", s)
-				for v in vars:
-					s = s.replace(v, "Q" + str(QC.QubitToIndex[v]))
-			for (name, _) in QC.Cbits:
-				vars = re.findall(name + "\[[0-9]+\]", s)
-				for v in vars:
-					s = s.replace(v, "C" + str(QC.CbitToIndex[v]))
+			for (end_idx, word) in list(automaton_Qbit.iter_long(s))[::-1]:
+				v = "Q" + str(QC.QubitToIndex[word])
+				start_idx = end_idx - len(word) + 1
+				end_idx += 1
+				s = s[:start_idx] + v + s[end_idx:]
+			for (end_idx, word) in list(automaton_Cbit.iter_long(s))[::-1]:
+				v = "C" + str(QC.CbitToIndex[word])
+				start_idx = end_idx - len(word) + 1
+				end_idx += 1
+				s = s[:start_idx] + v + s[end_idx:]
 
 			QC.AddGate(ReadGate(s))
 		except:

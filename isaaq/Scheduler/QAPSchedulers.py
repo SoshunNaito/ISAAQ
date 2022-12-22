@@ -8,7 +8,7 @@ class BaseQAPScheduler:
 		self.solver = solver
 
 	def _solve_main(self, problems: list[QubitMappingProblem]) -> list[QubitMapping]:
-		raise RuntimeError("ソルバーが実装されていません")
+		raise RuntimeError("スケジューラが実装されていません")
 
 	def solve(self, problem: QubitMappingProblem, reset_solver: bool = True) -> QubitMapping:
 		problems = GenerateQAPList(problem, self.solver.max_binary_variables)

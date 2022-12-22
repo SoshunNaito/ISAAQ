@@ -53,6 +53,9 @@ class AmplifySolver(BaseQAPSolver):
 			for f in as_completed(futures):
 				n = f.result()
 				runtimeInfo = ImportResult(problems[n], ids[n])
+				if(runtimeInfo.success == False):
+					raise RuntimeError("failed at AmplifyRunner")
+				
 				if(self.constraint_strength < runtimeInfo.constraint_strength):
 					self.constraint_strength = runtimeInfo.constraint_strength
 					print("constraint_strength changed to " + str(self.constraint_strength))

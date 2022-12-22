@@ -7,21 +7,15 @@ from isaaq.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
 from amplify import Solver, BinarySymbolGenerator
 from amplify.client import FixstarsClient
-from amplify.constraint import equal_to, clamp, one_hot
+from amplify.constraint import equal_to, one_hot
 
 import time
-from dataclasses import dataclass
-
-@dataclass
-class AmplifyExecutionInfo:
-	num_trials: int = 0
-	execution_time: float = 0
-	cpu_time: float = 0
-	queue_time: float = 0
 
 # solve with Amplify
-def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyExecutionInfo:
-	info = AmplifyExecutionInfo()
+def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: str) -> AmplifyRuntimeInfo:
+	solve_start_time = time.time()
+
+	info = AmplifyRuntimeInfo()
 	client = FixstarsClient()
 	client.token = settings.token
 
@@ -119,10 +113,11 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 		model = cost + constraint * strength
 		result = solver.solve(model)
 
+		info.constraint_strength = strength
 		info.num_trials += 1
-		info.execution_time += solver.execution_time
-		info.cpu_time += solver.client_result.timing.cpu_time
-		info.queue_time += solver.client_result.timing.queue_time
+		info.execution_time += int(solver.execution_time)
+		info.cpu_time += int(solver.client_result.timing.cpu_time)
+		info.queue_time += int(solver.client_result.timing.queue_time)
 		
 		if(len(result) > 0):
 			mappingResult = QubitMapping(problem.physicalDevice)
@@ -135,10 +130,12 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 							answer[i] = problem.candidates[m][i][j]
 				layer = QubitMappingLayer(problem.layers[m].virtualQubits, [], answer)
 				mappingResult.AddLayer(layer)
+
+			info.elapsed_time = int((time.time() - solve_start_time) * 1000)
 				
 			ExportResult(
 				mappingResult,
-				AmplifyRuntimeInfo(strength),
+				info,
 				id
 			)
 			return info
@@ -148,21 +145,28 @@ def solve_main(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, i
 
 import sys
 if __name__ == "__main__":
-	solve_start_time = time.time()
 	id = sys.argv[1]
 
 	(problem, settings) = ImportProblem(id)
-	info = solve_main(problem, settings, id)
 
-	time_ms = int((time.time() - solve_start_time) * 1000)
+	try:
+		info = solve(problem, settings, id)
+	except Exception as e:
+		print(e)
+		info = AmplifyRuntimeInfo()
+		info.success = False
+		ExportResult(None, info, id)
 
 	s = ""
-	if(info.num_trials == 1):
-		s += id + " : " + str(time_ms) + "ms"
+	if(info.success):
+		if(info.num_trials == 1):
+			s += id + " : " + str(info.elapsed_time) + "ms"
+		else:
+			s += id + " : " + str(info.elapsed_time) + "ms"
+			s += " (" + str(info.num_trials) + " trials)"
+		s += " exe: " + str(info.execution_time) + "ms"
+		s += ", cpu: " + str(info.cpu_time) + "ms"
+		s += ", que: " + str(info.queue_time) + "ms"
 	else:
-		s += id + " : " + str(time_ms) + "ms"
-		s += " (" + str(info.num_trials) + " trials)"
-	s += " exe: " + str(int(info.execution_time + 0.5)) + "ms"
-	s += ", cpu: " + str(int(info.cpu_time + 0.5)) + "ms"
-	s += ", que: " + str(int(info.queue_time + 0.5)) + "ms"
+		s += id + " : failure"
 	print(s)

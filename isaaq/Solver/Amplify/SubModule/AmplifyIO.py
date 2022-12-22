@@ -34,7 +34,13 @@ def _ImportRuntimeSettings(filepath: str) -> AmplifyRuntimeSettings:
 
 def _ExportRuntimeInfo(info: AmplifyRuntimeInfo, filepath: str):
 	S = []
+	S.append(["failure", "success"][info.success] + "\n")
 	S.append(str(info.constraint_strength) + "\n")
+	S.append(str(info.num_trials) + "\n")
+	S.append(str(info.elapsed_time) + "\n")
+	S.append(str(info.execution_time) + "\n")
+	S.append(str(info.cpu_time) + "\n")
+	S.append(str(info.queue_time) + "\n")
 
 	with open(filepath, "w") as f:
 		f.writelines(S)
@@ -43,10 +49,22 @@ def _ImportRuntimeInfo(filepath: str) -> AmplifyRuntimeInfo:
 	with open(filepath, "r") as f:
 		S = f.readlines()
 	
-	constraint_strength = float(S[0].strip())
+	success = (S[0][:7] == "success")
+	constraint_strength = float(S[1].strip())
+	num_trials = int(S[2].strip())
+	elapsed_time = int(S[3].strip())
+	execution_time = int(S[4].strip())
+	cpu_time = int(S[5].strip())
+	queue_time = int(S[6].strip())
 	
 	return AmplifyRuntimeInfo(
-		constraint_strength
+		success,
+		constraint_strength,
+		num_trials,
+		elapsed_time,
+		execution_time,
+		cpu_time,
+		queue_time
 	)
 
 
@@ -82,7 +100,7 @@ def ExportResult(result: QubitMapping, info: AmplifyRuntimeInfo, id: str):
 
 	os.makedirs(folderPath, exist_ok = True)
 
-	ExportMappingResult(result, resultFilePath)
+	if(result != None): ExportMappingResult(result, resultFilePath)
 	_ExportRuntimeInfo(info, infoFilePath)
 
 def ImportResult(dst_mapping: QubitMapping, id: str) -> AmplifyRuntimeInfo:
