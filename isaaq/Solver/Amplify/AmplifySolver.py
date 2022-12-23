@@ -72,6 +72,6 @@ class AmplifySolver(BaseQAPSolver):
 				problem.physicalDevice,
 				problem.layers
 			)
-			self.evaluate(problem, answer)
+			# self.evaluate(problem, answer)
 			answers.append(answer)
 		return answers
