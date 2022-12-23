@@ -42,7 +42,7 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 	virtualQubitToIndex: list[list[int]] = []
 	for m in range(M):
 		qubitToIndex = [0] * N_v
-		for q_v in usedVirtualQubits: qubitToIndex[q_v] = 1
+		for q_v in usedVirtualQubits[m]: qubitToIndex[q_v] = 1
 		for q_v in range(N_v):
 			if(q_v == 0): qubitToIndex[q_v] -= 1
 			else: qubitToIndex[q_v] += qubitToIndex[q_v - 1]
