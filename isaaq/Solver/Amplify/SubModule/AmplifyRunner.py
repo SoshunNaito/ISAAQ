@@ -24,8 +24,10 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 	#################################################
 
 	M = problem.numLayers
+	N_v = problem.layers[0].virtualQubits.N
+	N_p = problem.physicalDevice.qubits.N
 
-	# 使われているvirtual qubit
+	# 使われているvirtual qubitを列挙
 	usedVirtualQubits: list[list[int]] = []
 	for m in range(M):
 		used_qubits: set[int] = set()
@@ -45,10 +47,6 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 			if(q_v == 0): qubitToIndex[q_v] -= 1
 			else: qubitToIndex[q_v] += qubitToIndex[q_v - 1]
 		virtualQubitToIndex.append(qubitToIndex)
-
-	# マッピング先
-	N_v = problem.layers[0].virtualQubits.N
-	N_p = problem.physicalDevice.qubits.N
 
 	# バイナリ変数を用意する
 	gen = BinarySymbolGenerator()
