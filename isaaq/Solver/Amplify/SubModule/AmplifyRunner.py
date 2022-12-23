@@ -7,7 +7,7 @@ from isaaq.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
 from amplify import Solver, BinarySymbolGenerator
 from amplify.client import FixstarsClient
-from amplify.constraint import equal_to, one_hot
+from amplify.constraint import equal_to, one_hot, less_equal
 
 import time
 
@@ -19,90 +19,119 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 	client = FixstarsClient()
 	client.token = settings.token
 
-	N_in = problem.layers[0].virtualQubits.N
-	N_out = problem.physicalDevice.qubits.N
-	N_dummy = problem.physicalDevice.qubits.numQubits - problem.layers[0].virtualQubits.numQubits
+
+
+	#################################################
+
 	M = problem.numLayers
 
-	gen = BinarySymbolGenerator()
-	# x = gen.array(M, N_in, N_out)
-	x =	[
-			[
-				gen.array(len(problem.candidates[m][n_in])) for n_in in range(N_in)
-			] for m in range(M)
-		]
-	dummy = [
-		[
-			gen.array(N_out) for n_dummy in range(N_dummy)
-		] for m in range(M)
-	]
-
-	constraint = 0
+	# 使われているvirtual qubit
+	usedVirtualQubits: list[list[int]] = []
 	for m in range(M):
-		arr = [0 for n_out in range(N_out)]
-		for n_in in range(N_in):
-			# 行き先が必ず一つ存在する
-			constraint += one_hot(x[m][n_in])
-			# 行き先ごとにエッジを集計
-			for idx_out in range(len(problem.candidates[m][n_in])):
-				n_out = problem.candidates[m][n_in][idx_out]
-				arr[n_out] += x[m][n_in][idx_out]
-		for n_dummy in range(N_dummy):
-			# 行き先が必ず一つ存在する
-			constraint += one_hot(dummy[m][n_dummy])
-			# 行き先ごとにエッジを集計
-			for n_out in range(N_out):
-				arr[n_out] += dummy[m][n_dummy][n_out]
-		for n_out in range(N_out):
-			# if(arr[n_out] == 0): continue
-
-			# 行き先が集中して溢れることを防ぐ
-			# constraint += clamp(arr[n_out], 0, problem.physicalDevice.qubits.sizes[n_out])
-			constraint += equal_to(arr[n_out], problem.physicalDevice.qubits.sizes[n_out])
-
-	deviceCost = problem.physicalDevice.cost
-
-	cx_count = 0
-	cost_cnot = 0
-	for m in range(M):
+		used_qubits: set[int] = set()
 		layer = problem.layers[m]
 		for gate in layer.virtualGates:
 			if(isinstance(gate, CXGate)):
 				a, b = gate.Qubit_src, gate.Qubit_dst
-				for i in range(len(problem.candidates[m][a])):
-					p = problem.candidates[m][a][i]
-					for j in range(len(problem.candidates[m][b])):
-						q = problem.candidates[m][b][j]
-						cost_cnot += x[m][a][i] * x[m][b][j] * deviceCost.cost_cnot[p][q]
+				used_qubits.add(a)
+				used_qubits.add(b)
+		usedVirtualQubits.append(sorted(list(used_qubits)))
+
+	virtualQubitToIndex: list[list[int]] = []
+	for m in range(M):
+		qubitToIndex = [0] * N_v
+		for q_v in usedVirtualQubits: qubitToIndex[q_v] = 1
+		for q_v in range(N_v):
+			if(q_v == 0): qubitToIndex[q_v] -= 1
+			else: qubitToIndex[q_v] += qubitToIndex[q_v - 1]
+		virtualQubitToIndex.append(qubitToIndex)
+
+	# マッピング先
+	N_v = problem.layers[0].virtualQubits.N
+	N_p = problem.physicalDevice.qubits.N
+
+	# バイナリ変数を用意する
+	gen = BinarySymbolGenerator()
+	x =	[
+			[
+				gen.array(len(problem.candidates[m][q_v])) for q_v in usedVirtualQubits[m]
+			] for m in range(M)
+		]
+	
+	# 制約を追加する
+	constraint = 0
+	for m in range(M):
+		arr = [0 for _ in range(N_p)]
+		for idx_v, q_v in enumerate(usedVirtualQubits[m]):
+			# 行き先が必ず一つ存在する
+			constraint += one_hot(x[m][idx_v])
+			# 行き先ごとにエッジを集計
+			for idx_p, q_p in enumerate(problem.candidates[m][q_v]):
+				arr[q_p] += x[m][idx_v][idx_p]
+
+		for q_p in range(N_p):
+			if(arr[q_p] == 0): continue
+
+			# 行き先が集中して溢れることを防ぐ
+			constraint += less_equal(arr[q_p], problem.physicalDevice.qubits.sizes[q_p])
+			# constraint += equal_to(arr[q_p], problem.physicalDevice.qubits.sizes[q_p])
+
+	deviceCost = problem.physicalDevice.cost
+
+	# CNOTゲートのコスト
+	cx_count = 0
+	cost_cnot = 0
+	for m in range(M):
+		layer = problem.layers[m]
+		qubitToIndex = virtualQubitToIndex[m]
+		for gate in layer.virtualGates:
+			if(isinstance(gate, CXGate)):
+				q_va, q_vb = gate.Qubit_src, gate.Qubit_dst
+				idx_va, idx_vb = qubitToIndex[q_va], qubitToIndex[q_vb]
+				for idx_pa, q_pa in enumerate(problem.candidates[m][q_va]):
+					for idx_pb, q_pb in enumerate(problem.candidates[m][q_vb]):
+						cost_cnot += x[m][idx_va][idx_pa] * x[m][idx_vb][idx_pb] * deviceCost.cost_cnot[q_pa][q_pb]
 				cx_count += 1
 
+	# SWAPゲートのコスト
 	cost_swap = 0
-	for m in range(-1, M):
-		if(m == -1):
+	prev_layers = [None] * N_v
+	for m_r in range(-1, M + 1):
+		if(m_r == -1):
 			if(problem.left_layer != None and problem.left_strength > 0):
-				for i in range(N_in):
-					a = problem.left_layer.virtualToPhysical[i]
-					for j in range(len(problem.candidates[0][i])):
-						b = problem.candidates[0][i][j]
-						cost_swap += x[0][i][j] * deviceCost.cost_swap[a][b] * problem.left_strength
+				for q_v, q_p in enumerate(problem.left_layer.virtualToPhysical):
+					if(q_p != -1): prev_layers[q_v] = -1
 
-		elif(m == M - 1):
+		elif(m_r == M):
 			if(problem.right_layer != None and problem.right_strength > 0):
-				for i in range(N_in):
-					b = problem.right_layer.virtualToPhysical[i]
-					for j in range(len(problem.candidates[M - 1][i])):
-						a = problem.candidates[M - 1][i][j]
-						cost_swap += x[M - 1][i][j] * deviceCost.cost_swap[a][b] * problem.right_strength
+				for q_v, q_pr in enumerate(problem.right_layer.virtualToPhysical):
+					m_l = prev_layers[q_v]
+					if(q_pr == -1 or m_l in [-1, None]): continue
+
+					strength = problem.right_strength * 1
+
+					idx_v = virtualQubitToIndex[m_l][q_v]
+					for idx_pl, q_pl in enumerate(problem.candidates[m_l][q_v]):
+						cost_swap += x[m_l][idx_v][idx_pl] * deviceCost.cost_swap[q_pl][q_pr] * strength
+		
 		else:
-			for i in range(N_in):
-				for j in range(len(problem.candidates[m][i])):
-					a = problem.candidates[m][i][j]
-					for k in range(len(problem.candidates[m + 1][i])):
-						b = problem.candidates[m + 1][i][k]
-						cost_swap += x[m][i][j] * x[m + 1][i][k] * deviceCost.cost_swap[a][b]
+			for idx_vr, q_v in enumerate(usedVirtualQubits[m_r]):
+				m_l = prev_layers[q_v]
+				if(m_l == None): continue
+
+				strength = (problem.left_strength if m_l == -1 else 1) * 1
+				idx_vl = virtualQubitToIndex[m_l][q_v]
+
+				for idx_pl, q_pl in enumerate(problem.candidates[m_l][q_v]):
+					for idx_pr, q_pr in enumerate(problem.candidates[m_r][q_v]):
+						cost_swap += x[m_l][idx_vl][idx_pl] * x[m_r][idx_vr][idx_pr] * deviceCost.cost_swap[q_pl][q_pr] * strength
 
 	cost = cost_cnot + cost_swap
 	cost /= cx_count
+
+	#################################################
+
+
 
 	client.parameters.timeout = settings.timeout
 	solver = Solver(client)
@@ -122,12 +151,11 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 		if(len(result) > 0):
 			mappingResult = QubitMapping(problem.physicalDevice)
 			for m in range(M):
-				answer = [-1 for _ in range(N_in)]
-				for i in range(N_in):
-					x_values = x[m][i].decode(result[0].values)
-					for j in range(len(problem.candidates[m][i])):
-						if(x_values[j] > 0.5):
-							answer[i] = problem.candidates[m][i][j]
+				answer = [-1 for _ in range(N_v)]
+				for idx_v, q_v in enumerate(usedVirtualQubits[m]):
+					x_values = x[m][idx_v].decode(result[0].values)
+					for idx_p, q_p in enumerate(problem.candidates[m][q_v]):
+						if(x_values[idx_p] > 0.5): answer[q_v] = q_p
 				layer = QubitMappingLayer(problem.layers[m].virtualQubits, [], answer)
 				mappingResult.AddLayer(layer)
 

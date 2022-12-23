@@ -60,6 +60,12 @@ class AmplifySolver(BaseQAPSolver):
 					self.constraint_strength = runtimeInfo.constraint_strength
 					print("constraint_strength changed to " + str(self.constraint_strength))
 
+
+		for problem in problems:
+			print()
+			for layer in problem.layers:
+				print(layer.virtualToPhysical)
+
 		answers = []
 		for problem in problems:
 			answer = QubitMapping(
