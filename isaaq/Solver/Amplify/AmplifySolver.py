@@ -110,7 +110,7 @@ class AmplifySolver(BaseQAPSolver):
 
 			for idx in range(idx0 + 1, idx1 - 1):
 				for q_pl in candidates[idx][q_v]:
-					if(emptySpaces[idx - idx0 - 1][q_pr] == 0):
+					if(emptySpaces[idx - idx0 - 1][q_pl] == 0):
 						continue
 					d0 = distances[idx - idx0 - 1][q_pl]
 					for q_pr in candidates[idx + 1][q_v]:
@@ -123,7 +123,7 @@ class AmplifySolver(BaseQAPSolver):
 
 			dist, back = INF, -1
 			for q_pl in candidates[idx1 - 1][q_v]:
-				if(emptySpaces[idx1 - idx0 - 2][q_pr] == 0):
+				if(emptySpaces[idx1 - idx0 - 2][q_pl] == 0):
 					continue
 				if(idx1 == len(candidates)):
 					d = distances[idx1 - idx0 - 2][q_pl]
@@ -144,7 +144,7 @@ class AmplifySolver(BaseQAPSolver):
 		for mappingResult in mappingResults[:-1]:
 			s = "  ".join([("." if q_p == -1 else str(q_p)) for q_p in mappingResult])
 			print(s)
-			
+
 
 		answers = []
 		for problem in problems:
