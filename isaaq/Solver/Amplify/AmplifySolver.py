@@ -80,7 +80,8 @@ class AmplifySolver(BaseQAPSolver):
 				candidates.append(candidate)
 		mappingResults.append([-1 for _ in range(N_v)])
 
-
+		
+		print("before")
 		for mappingResult in mappingResults[:-1]:
 			s = "  ".join([("." if q_p == -1 else str(q_p)) for q_p in mappingResult])
 			print(s)
@@ -141,6 +142,7 @@ class AmplifySolver(BaseQAPSolver):
 				back = backs[idx - idx0 - 1][back]
 
 		
+		print("after")
 		for mappingResult in mappingResults[:-1]:
 			s = "  ".join([("." if q_p == -1 else str(q_p)) for q_p in mappingResult])
 			print(s)
