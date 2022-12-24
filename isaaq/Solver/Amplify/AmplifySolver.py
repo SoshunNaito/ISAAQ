@@ -103,18 +103,18 @@ class AmplifySolver(BaseQAPSolver):
 			if(idx0 != -1):
 				q_pl = mappingResults[idx0][q_v]
 				for q_pr in candidates[idx0 + 1][q_v]:
-					if(emptySpaces[0][q_pr] == 0):
+					if(emptySpaces[idx0 + 1][q_pr] == 0):
 						continue
 					distances[0][q_pr] = device.cost.cost_swap[q_pl][q_pr]
 					backs[0][q_pr] = q_pl
 
 			for idx in range(idx0 + 1, idx1 - 1):
 				for q_pl in candidates[idx][q_v]:
-					if(emptySpaces[idx - idx0 - 1][q_pl] == 0):
+					if(emptySpaces[idx][q_pl] == 0):
 						continue
 					d0 = distances[idx - idx0 - 1][q_pl]
 					for q_pr in candidates[idx + 1][q_v]:
-						if(emptySpaces[idx - idx0][q_pr] == 0):
+						if(emptySpaces[idx + 1][q_pr] == 0):
 							continue
 						d = d0 + device.cost.cost_swap[q_pl][q_pr]
 						if(d < distances[idx - idx0][q_pr]):
@@ -123,7 +123,7 @@ class AmplifySolver(BaseQAPSolver):
 
 			dist, back = INF, -1
 			for q_pl in candidates[idx1 - 1][q_v]:
-				if(emptySpaces[idx1 - idx0 - 2][q_pl] == 0):
+				if(emptySpaces[idx1 - 1][q_pl] == 0):
 					continue
 				if(idx1 == len(candidates)):
 					d = distances[idx1 - idx0 - 2][q_pl]
@@ -137,7 +137,7 @@ class AmplifySolver(BaseQAPSolver):
 			# DP復元
 			for idx in range(idx0 + 1, idx1)[::-1]:
 				mappingResults[idx][q_v] = back
-				emptySpaces[idx - idx0 - 1][back] -= 1
+				emptySpaces[idx][back] -= 1
 				back = backs[idx - idx0 - 1][back]
 
 		
