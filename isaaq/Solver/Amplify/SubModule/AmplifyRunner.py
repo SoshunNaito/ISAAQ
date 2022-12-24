@@ -19,8 +19,6 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 	client = FixstarsClient()
 	client.token = settings.token
 
-
-
 	#################################################
 
 	M = problem.numLayers
@@ -31,6 +29,9 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 	usedVirtualQubits: list[list[int]] = []
 	for m in range(M):
 		used_qubits: set[int] = set()
+		if(settings.reduce_unused_qubits == False):
+			for q_v in range(N_v): used_qubits.add(q_v)
+
 		layer = problem.layers[m]
 		for gate in layer.virtualGates:
 			if(isinstance(gate, CXGate)):
