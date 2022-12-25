@@ -27,12 +27,13 @@ class AmplifySolver(BaseQAPSolver):
 		self.reset()
 
 	def reset(self):
+		self.constraint_strength = self.settings.constraint_strength
+		self.reduce_unused_qubits = self.settings.reduce_unused_qubits
+		
 		self.token = self.settings.token
 		self.max_binary_variables = self.settings.max_binary_variables
 		self.max_num_machines = self.settings.max_num_machines
 		self.timeout = self.settings.timeout
-		self.constraint_strength = self.settings.constraint_strength
-		self.reduce_unused_qubits = self.settings.reduce_unused_qubits
 
 	def solve(self, problem: QubitMappingProblem) -> QubitMapping:
 		return self.solve_all([problem])[0]

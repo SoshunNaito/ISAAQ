@@ -10,17 +10,17 @@ class BaseQAPScheduler:
 	def _solve_main(self, problems: list[QubitMappingProblem]) -> list[QubitMapping]:
 		raise RuntimeError("スケジューラが実装されていません")
 
-	def _fill_qubits(self, problems: list[QubitMappingProblem], answers: list[QubitMapping]):
+	def _fill_qubits(self, answers: list[QubitMapping]):
 		################# 確定していないqubitの割り当てを埋める ##################
 
-		device = problems[0].physicalDevice
-		N_v = problems[0].layers[0].virtualQubits.N
+		device = answers[0].physicalDevice
+		N_v = answers[0].layers[0].virtualQubits.N
 		N_p = device.qubits.N
 
 		mappingResults: list[list[int]] = []
 		emptySpaces: list[list[int]] = []
-		for problem in problems:
-			for layer in problem.layers:
+		for answer in answers:
+			for layer in answer.layers:
 				mappingResults.append([q_p for q_p in layer.virtualToPhysical])
 				counts = [s for s in device.qubits.sizes]
 				for q_p in layer.virtualToPhysical:
@@ -28,16 +28,14 @@ class BaseQAPScheduler:
 				emptySpaces.append(counts)
 		mappingResults.append([0 for _ in range(N_v)])
 
-		
-		print("before")
-		for mappingResult in mappingResults:
-			a = []
-			for q_p in mappingResult:
-				s = "." if q_p == -1 else str(q_p)
-				s += "".join([" "] * (3 - len(s)))
-				a.append(s)
-			print("".join(a))
-
+		# print("before")
+		# for mappingResult in mappingResults[:-1]:
+		# 	a = []
+		# 	for q_p in mappingResult:
+		# 		s = "." if q_p == -1 else str(q_p)
+		# 		s += "".join([" "] * (3 - len(s)))
+		# 		a.append(s)
+		# 	print("".join(a))
 
 		intervals: list[Tuple[int, int, int]] = []
 		for q_v in range(N_v):
@@ -96,23 +94,36 @@ class BaseQAPScheduler:
 				emptySpaces[idx][back] -= 1
 				back = backs[idx - idx0 - 1][back]
 
-		print("after")
-		for mappingResult in mappingResults:
-			a = []
-			for q_p in mappingResult:
-				s = "." if q_p == -1 else str(q_p)
-				s += "".join([" "] * (3 - len(s)))
-				a.append(s)
-			print("".join(a))
+		# print("after")
+		# for mappingResult in mappingResults[:-1]:
+		# 	a = []
+		# 	for q_p in mappingResult:
+		# 		s = "." if q_p == -1 else str(q_p)
+		# 		s += "".join([" "] * (3 - len(s)))
+		# 		a.append(s)
+		# 	print("".join(a))
+
+		idx = 0
+		for answer in answers:
+			for layer in answer.layers:
+				for q_v, q_p in enumerate(mappingResults[idx]):
+					layer.virtualToPhysical[q_v] = q_p
+				idx += 1
 
 	def solve(self, problem: QubitMappingProblem, reset_solver: bool = True) -> QubitMapping:
-		problems = GenerateQAPList(problem, self.solver.max_binary_variables)
+		problems = GenerateQAPList(
+			problem,
+			self.solver.max_binary_variables,
+			self.solver.reduce_unused_qubits
+		)
 		if(reset_solver): self.solver.reset()
 
 		answers = self._solve_main(problems)
 		if(len(answers) != len(problems)):
 			raise RuntimeError("問題と解のサイズが異なります")
-		self._fill_qubits(problems, answers)
+
+		if(self.solver.reduce_unused_qubits):
+			self._fill_qubits(answers)
 		
 		answer = QubitMapping(problem.physicalDevice)
 		for a in answers:
