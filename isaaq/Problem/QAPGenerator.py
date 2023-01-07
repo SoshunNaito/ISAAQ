@@ -24,13 +24,39 @@ def GenerateQAPList(
 	sizes = []
 	size_sum, size_max = 0, 0
 	for layer_idx, cands_list in enumerate(problem.candidates):
-		s = 0
+		activeIslands: set[int] = set()
+
+		num_variables = 0
 		for q_v, cands in enumerate(cands_list):
 			if(q_v in usedQubitsList[layer_idx]):
-				s += len(cands)
-		sizes.append(s)
-		size_sum += s
-		size_max = max(size_max, s)
+				num_variables += len(cands)
+				for q_p in cands: activeIslands.add(q_p)
+		
+		# less_equal制約
+		extra_variables_constraint = 0
+		for q_p in activeIslands:
+			size = problem.physicalDevice.qubits.sizes[q_p]
+			k = 1
+			while(k <= size):
+				size, k = size - k, k * 2
+				extra_variables_constraint += 1
+			if(size > 0):
+				extra_variables_constraint += 1
+
+		# equal_to制約
+		extra_variables_dummy = 0
+		for q_p in activeIslands:
+			size = problem.physicalDevice.qubits.sizes[q_p]
+			extra_variables_dummy += size
+		extra_variables_dummy -= len(usedQubitsList[layer_idx])
+		extra_variables_dummy *= len(activeIslands)
+
+		extra_variables = min(extra_variables_constraint, extra_variables_dummy)
+		num_variables += extra_variables
+				
+		sizes.append(num_variables)
+		size_sum += num_variables
+		size_max = max(size_max, num_variables)
 	if(max_binary_variables == -1):
 		max_binary_variables = size_sum
 

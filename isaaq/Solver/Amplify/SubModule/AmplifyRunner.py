@@ -6,6 +6,7 @@ from isaaq.Solver.Amplify.SubModule.AmplifyIO import *
 from isaaq.Solver.Amplify.SubModule.RuntimeDataTypes import *
 
 from amplify import Solver, BinarySymbolGenerator
+from amplify import InequalityFormulation
 from amplify.client import FixstarsClient
 from amplify.constraint import equal_to, one_hot, less_equal
 
@@ -62,19 +63,61 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 		constraint = 0
 		for m in range(M):
 			arr = [0 for _ in range(N_p)]
+			cnt = [0 for _ in range(N_p)]
 			for idx_v, q_v in enumerate(usedVirtualQubits[m]):
 				# 行き先が必ず一つ存在する
 				constraint += one_hot(x[m][idx_v])
 				# 行き先ごとにエッジを集計
 				for idx_p, q_p in enumerate(problem.candidates[m][q_v]):
 					arr[q_p] += x[m][idx_v][idx_p]
+					cnt[q_p] += 1
 
+			activeQubits: set[int] = set()
+			qubitToIndex: list[int] = [-1] * N_p
+			used_qubits = len(usedVirtualQubits[m])
+			total_qubits = 0
 			for q_p in range(N_p):
 				if(arr[q_p] == 0): continue
+				qubitToIndex[q_p] = len(activeQubits)
+				activeQubits.add(q_p)
+				total_qubits += problem.physicalDevice.qubits.sizes[q_p]
 
-				# 行き先が集中して溢れることを防ぐ
-				constraint += less_equal(arr[q_p], problem.physicalDevice.qubits.sizes[q_p])
-				# constraint += equal_to(arr[q_p], problem.physicalDevice.qubits.sizes[q_p])
+			# equal_to制約
+			dummy_count = total_qubits - used_qubits
+			extra_variables_dummy = dummy_count * len(activeQubits)
+
+			# less_equal制約
+			extra_variables_constraint = 0
+			for q_p in activeQubits:
+				size = problem.physicalDevice.qubits.sizes[q_p]
+				k = 1
+				while(k <= size):
+					size, k = size - k, k * 2
+					extra_variables_constraint += 1
+				if(size > 0):
+					extra_variables_constraint += 1
+			
+			# equal_to制約
+			if(extra_variables_dummy <= extra_variables_constraint):
+				dummy_qubits = gen.array(dummy_count, len(activeQubits))
+				for dummy_idx in range(dummy_count):
+					constraint += one_hot(dummy_qubits[dummy_idx, :])
+
+				for q_p in range(N_p):
+					if(arr[q_p] == 0): continue
+					idx_p = qubitToIndex[q_p]
+					constraint += equal_to(
+						arr[q_p] + sum(dummy_qubits[:, idx_p]),
+						problem.physicalDevice.qubits.sizes[q_p]
+					)
+			# less_equal制約
+			else:
+				for q_p in range(N_p):
+					if(cnt[q_p] <= problem.physicalDevice.qubits.sizes[q_p]): continue
+					constraint += less_equal(
+						arr[q_p],
+						problem.physicalDevice.qubits.sizes[q_p]
+					)
 
 		deviceCost = problem.physicalDevice.cost
 
@@ -140,7 +183,7 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 								cost_swap += x[m_l][idx_vl][idx_pl] * x[m_r][idx_vr][idx_pr] * deviceCost.cost_swap[q_pl][q_pr] * strength
 
 		cost = cost_cnot + cost_swap
-		cost /= cx_count
+		cost = cost / cx_count
 
 		info.preparing_time = int((time.time() - solve_start_time) * 1000)
 
