@@ -25,6 +25,6 @@ def ImportMappingResult(dst_mapping: QubitMapping, filepath: str):
 		if(len(A) != dst_mapping.layers[n].virtualQubits.N):
 			raise RuntimeError("mapping結果の長さ(仮想Qubit数)が異なります")
 		for a in A:
-			if(a < 0 or a >= dst_mapping.physicalDevice.qubits.N):
-				raise RuntimeError("mapping結果(物理Qubit番号)が正しくありません")
+			# if(a < 0 or a >= dst_mapping.physicalDevice.qubits.N):
+			# 	raise RuntimeError("mapping結果(物理Qubit番号)が正しくありません")
 			dst_mapping.layers[n].virtualToPhysical.append(a)

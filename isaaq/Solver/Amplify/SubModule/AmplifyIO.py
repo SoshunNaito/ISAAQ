@@ -14,6 +14,7 @@ def _ExportRuntimeSettings(settings: AmplifyRuntimeSettings, filepath: str):
 	S.append(settings.token + "\n")
 	S.append(str(settings.timeout) + "\n")
 	S.append(str(settings.constraint_strength) + "\n")
+	S.append(str(settings.reduce_unused_qubits) + "\n")
 
 	with open(filepath, "w") as f:
 		f.writelines(S)
@@ -25,11 +26,13 @@ def _ImportRuntimeSettings(filepath: str) -> AmplifyRuntimeSettings:
 	token = S[0].strip()
 	timeout = int(S[1].strip())
 	constraint_strength = float(S[2].strip())
+	reduce_unused_qubits = (S[3].strip() == "True")
 
 	return AmplifyRuntimeSettings(
 		token,
 		timeout,
-		constraint_strength
+		constraint_strength,
+		reduce_unused_qubits
 	)
 
 def _ExportRuntimeInfo(info: AmplifyRuntimeInfo, filepath: str):
