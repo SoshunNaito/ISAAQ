@@ -4,9 +4,7 @@ from isaaq.Solver.BaseQAPSolver import *
 from isaaq.IO.QubitMappingProblem import *
 from isaaq.IO.QubitMappingResult import *
 
-from isaaq.Scheduler.QAPSchedulers import *
-
-from ortools.graph.python import max_flow, min_cost_flow
+from ortools.graph.python import min_cost_flow
 import numpy as np
 
 from dataclasses import dataclass
