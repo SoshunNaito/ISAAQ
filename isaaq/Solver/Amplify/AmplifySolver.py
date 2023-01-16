@@ -27,24 +27,30 @@ class AmplifySolver(BaseQAPSolver):
 		self.reset()
 
 	def reset(self):
+		self.constraint_strength = self.settings.constraint_strength
+		self.reduce_unused_qubits = self.settings.reduce_unused_qubits
+		
 		self.token = self.settings.token
 		self.max_binary_variables = self.settings.max_binary_variables
 		self.max_num_machines = self.settings.max_num_machines
 		self.timeout = self.settings.timeout
-		self.constraint_strength = self.settings.constraint_strength
 
 	def solve(self, problem: QubitMappingProblem) -> QubitMapping:
 		return self.solve_all([problem])[0]
 	
 	def solve_all(self, problems: list[QubitMappingProblem]) -> list[QubitMapping]:
 		ids = [str(n) for n in range(len(problems))]
-		for n in range(len(problems)):
-			problem = problems[n]
+		answers = []
+		for n, problem in enumerate(problems):
 			ExportProblem(
 				problem,
-				AmplifyRuntimeSettings(self.token, self.timeout, self.constraint_strength),
+				AmplifyRuntimeSettings(
+					self.token, self.timeout, self.constraint_strength, self.reduce_unused_qubits
+				),
 				ids[n]
 			)
+			answers.append(QubitMapping(problem.physicalDevice, problem.layers))
+
 		with ThreadPoolExecutor(max_workers = self.max_num_machines) as pool:
 			futures = [
 				pool.submit(CallAmplifyRunner, n, ids[n])
@@ -52,20 +58,11 @@ class AmplifySolver(BaseQAPSolver):
 			]
 			for f in as_completed(futures):
 				n = f.result()
-				runtimeInfo = ImportResult(problems[n], ids[n])
+				runtimeInfo = ImportResult(answers[n], ids[n])
 				if(runtimeInfo.success == False):
 					raise RuntimeError("failed at AmplifyRunner")
 				
 				if(self.constraint_strength < runtimeInfo.constraint_strength):
 					self.constraint_strength = runtimeInfo.constraint_strength
 					print("constraint_strength changed to " + str(self.constraint_strength))
-
-		answers = []
-		for problem in problems:
-			answer = QubitMapping(
-				problem.physicalDevice,
-				problem.layers
-			)
-			self.evaluate(problem, answer)
-			answers.append(answer)
 		return answers

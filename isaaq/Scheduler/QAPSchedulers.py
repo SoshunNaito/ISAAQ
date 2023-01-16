@@ -1,28 +1,6 @@
 from isaaq.Common.QubitMapping import *
 from isaaq.Common.QubitMappingProblem import *
-from isaaq.Solver.BaseQAPSolver import *
-from isaaq.Problem.QAPGenerator import *
-
-class BaseQAPScheduler:
-	def __init__(self, solver: BaseQAPSolver):
-		self.solver = solver
-
-	def _solve_main(self, problems: list[QubitMappingProblem]) -> list[QubitMapping]:
-		raise RuntimeError("スケジューラが実装されていません")
-
-	def solve(self, problem: QubitMappingProblem, reset_solver: bool = True) -> QubitMapping:
-		problems = GenerateQAPList(problem, self.solver.max_binary_variables)
-		if(reset_solver): self.solver.reset()
-
-		answers = self._solve_main(problems)
-		if(len(answers) != len(problems)):
-			raise RuntimeError("問題と解のサイズが異なります")
-		
-		answer = QubitMapping(problem.physicalDevice)
-		for a in answers:
-			for layer in a.layers:
-				answer.AddLayer(layer)
-		return answer
+from isaaq.Scheduler.BaseQAPScheduler import *
 
 class IndependentQAPScheduler(BaseQAPScheduler):
 	def _solve_main(self, problems: list[QubitMappingProblem]) -> list[QubitMapping]:

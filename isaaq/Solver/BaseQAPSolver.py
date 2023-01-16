@@ -3,7 +3,8 @@ from isaaq.Common.QubitMappingProblem import *
 
 class BaseQAPSolver:
 	def __init__(self):
-		self.max_binary_variables = -1
+		self.max_binary_variables: int = -1
+		self.reduce_unused_qubits: bool = False
 
 	def evaluate(self, problem: QubitMappingProblem, answer: QubitMapping) -> bool:
 		if(len(problem.candidates) != answer.numLayers):
