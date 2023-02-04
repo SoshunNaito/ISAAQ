@@ -95,13 +95,13 @@ def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: boo
 
 	try:
 		graph = ImportGraph(deviceGraphName)
-		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, ~refreshCostTable)
+		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, None, ~refreshCostTable)
 
 		ExportCost(filepath_learned, deviceCost)
 		return deviceCost
 	except:
 		graph = ImportGraph(deviceGraphName)
-		deviceCost = GenerateInitialDeviceCost(deviceCostName, graph, ~refreshCostTable)
+		deviceCost = GenerateInitialDeviceCost(deviceCostName, graph, None, ~refreshCostTable)
 		
 		ExportCost(filepath_initial, deviceCost)
 		return deviceCost

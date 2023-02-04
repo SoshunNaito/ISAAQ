@@ -27,38 +27,6 @@ class FullConnectedConfig(CostEstimationConfig):
             name = "Config_Full_" + str(N) + "_" + str(N ** 2)
         )
 
-# for medium devices (N <= 50)
-class LocallyConnectedConfig(CostEstimationConfig):
-    def __init__(self, N: int, maxDist: int, graph: PhysicalDeviceGraph):
-        if(maxDist < -1):
-            print("LocallyConnectedConfig: maxDist cannot be smaller than -1")
-            maxDist = -1
-
-        vars: list[list[Tuple[int, int]]] = []
-        for a in range(N):
-            for b in range(N):
-                if(graph.distanceTo[a][b] <= maxDist):
-                    vars.append([(a, b)])
-
-        V = len(vars) - 1
-        for a in range(N):
-            for b in range(N):
-                if(graph.distanceTo[a][b] > maxDist):
-                    v = V + graph.distanceTo[a][b] - maxDist
-                    while(len(vars) <= v): vars.append([])
-                    vars[v].append((a, b))
-
-        coefs = [[0 for v in range(len(vars))] for n in range(N ** 2)]
-        for v in range(len(vars)):
-            for (a, b) in vars[v]:
-                idx = a * N + b
-                coefs[idx][v] = 1
-                
-        super().__init__(
-            N, coefs,
-            name = "Config_Local_" + str(N) + "_" + str(len(vars))
-        )
-
 # for large devices (N <= 1000)
 class CommonFunctionConfig(CostEstimationConfig):
     def __init__(self, N: int, func: Callable[[int, int], list[float]]):
