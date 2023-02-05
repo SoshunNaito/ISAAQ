@@ -15,7 +15,7 @@ def test_standalone_solver():
     )
 
     ##### circuit preparation #####
-    inputCircuit = ImportCircuit("isaaq/tests/test.qc") # OpenQASM 2.0 files are available.
+    inputCircuit = ImportCircuit("isaaq/tests/test_input.qasm") # OpenQASM 2.0 files are available.
 
 
     solver = StandaloneSolver( # Use StandaloneSolver in case you don't have a Fixstars Amplify account.
@@ -46,7 +46,7 @@ def test_standalone_solver():
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    output_file = output_directory + '/output.out'
+    output_file = output_directory + '/test_output.qasm'
     ExportCircuit(outputCircuit, output_file)
 
     assert os.path.exists(output_file)
