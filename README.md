@@ -26,7 +26,7 @@ print("device prepared")
 
 
 ##### circuit preparation #####
-inputCircuit = ImportCircuit("<path_to_circuit>")
+inputCircuit = ImportCircuit("<path_to_inputCircuit>") # OpenQASM 2.0 files are available.
 print("circuit prepared")
 
 
@@ -40,21 +40,37 @@ solver = AmplifySolver(
         constraint_strength = 2.0
 	)
 )
+# solver = StandaloneSolver( # Use StandaloneSolver in case you don't have a Fixstars Amplify account.
+# 	settings = StandaloneSettings(
+# 		num_iterations=20
+# 	)
+# )
 scheduler = BinaryQAPScheduler(solver)
 print("solver prepared")
 
 
 ##### solve mapping problem & construct circuit
-mappingResult = SolveClusteredMapping(
+mappingResult = SolveClusteredMapping( # Use hierarchical clustering to efficiently perform qubit routing.
     inputCircuit, clusteringResult, scheduler,
     maxLayerSize = 30,
     minLayerCount = 10,
     simplifyCircuit = True,
     useLocalSearch = True
 )
+# mappingResult = solver.solve( # You can use solver.solve() directly when the physical device is small enough.
+# 	GenerateMappingProblem(
+# 		circuit = inputCircuit,
+# 		device = originalDevice,
+# 		maxLayerSize = 30,
+# 		minLayerCount = 10,
+# 		simplifyCircuit = True
+# 	)
+# )
 outputCircuit = ConstructCircuit(
     inputCircuit, mappingResult,
     routingCache = None,
-    addRoutingLog = True
+    addRoutingLog = True # ISAAQ uses routing results to update QUBO models.
 )
+
+ExportCircuit(outputCircuit, "<path_to_export_outputCircuit>")
 ```

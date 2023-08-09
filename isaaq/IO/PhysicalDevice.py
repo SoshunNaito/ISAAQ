@@ -3,6 +3,7 @@ import os
 from isaaq.Common.PhysicalQubits import *
 from isaaq.Common.PhysicalDevice import *
 from isaaq.CostTable import *
+from pkg_resources import resource_string, resource_listdir
 
 def ImportQubits(deviceGraphName: str, filepath: str = "") -> PhysicalQubits:
 	if(filepath == ""):

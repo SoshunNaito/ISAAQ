@@ -1,5 +1,7 @@
 numpy==1.23.4
 nptyping==2.2.0
 networkx==2.8.8
-ortools==9.4.1874
 amplify==0.9.1
+ortools==9.5.2237
+pytest==7.2.1
+pyahocorasick==2.0.0

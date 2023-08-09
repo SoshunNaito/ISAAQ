@@ -68,7 +68,7 @@ def SimplifyCircuit(circuit: QuantumCircuit) -> QuantumCircuit:
 		D *= factor
 
 	ans: QuantumCircuit = QuantumCircuit(circuit.Qubits, circuit.Cbits)
-	for gate in gates_dst: ans.AddGate(gate)
+	for gate in gates_src: ans.AddGate(gate)
 	return ans
 
 def GenerateMappingProblem(
