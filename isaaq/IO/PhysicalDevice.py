@@ -83,7 +83,7 @@ def ExportCost(filepath: str, deviceCost: PhysicalDeviceCost):
 
 def PrepareCost(
 	deviceGraphName: str, deviceCostName: str, refreshCostTable: bool,
-	CostEstimationModelConfigGenerateFunc: Callable[[PhysicalDeviceGraph], CostEstimationConfig] = CommonFunctionConfig.GenerateFromGraph
+	CostEstimationModelConfigGenerateFunc: Callable[[PhysicalDeviceGraph], CostEstimationConfig]
 ) -> PhysicalDeviceCost:
 	
 	folderPath_initial = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/initial/" + deviceCostName)
@@ -112,9 +112,12 @@ def PrepareCost(
 		ExportCost(filepath_initial, deviceCost)
 		return deviceCost
 
-def ImportDeviceManually(deviceGraphName: str, deviceCostName: str, refreshCostTable: bool) -> PhysicalDevice:
+def ImportDeviceManually(
+	deviceGraphName: str, deviceCostName: str, refreshCostTable: bool,
+	CostEstimationModelConfigGenerateFunc: Callable[[PhysicalDeviceGraph], CostEstimationConfig]
+) -> PhysicalDevice:
 	graph = ImportGraph(deviceGraphName)
-	cost = PrepareCost(deviceGraphName, deviceCostName, refreshCostTable)
+	cost = PrepareCost(deviceGraphName, deviceCostName, refreshCostTable, CostEstimationModelConfigGenerateFunc)
 
 	try:
 		qubits = ImportQubits(deviceGraphName)
@@ -123,5 +126,8 @@ def ImportDeviceManually(deviceGraphName: str, deviceCostName: str, refreshCostT
 		ExportQubits(qubits, graph.name)
 	return PhysicalDevice(qubits, graph, cost)
 
-def ImportDevice(deviceName: str, refreshCostTable: bool = False) -> PhysicalDevice:
-	return ImportDeviceManually(deviceName, deviceName, refreshCostTable)
+def ImportDevice(
+	deviceName: str, refreshCostTable: bool = False,
+	CostEstimationModelConfigGenerateFunc: Callable[[PhysicalDeviceGraph], CostEstimationConfig] = CommonFunctionConfig.GenerateFromGraph
+) -> PhysicalDevice:
+	return ImportDeviceManually(deviceName, deviceName, refreshCostTable, CostEstimationModelConfigGenerateFunc)
