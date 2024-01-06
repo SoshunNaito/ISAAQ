@@ -52,7 +52,7 @@ def _GenerateCostTable(costEstimationModel: CostEstimationModel) -> list[list[fl
 
 def GenerateInitialDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    config: CostEstimationConfig = None, use_cache = True
+    config: CostEstimationConfig, use_cache = True
 ) -> PhysicalDeviceCost:
 
     cost_cnot = [
@@ -72,7 +72,7 @@ def GenerateInitialDeviceCost(
 
 def GenerateLearnedDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    config: CostEstimationConfig = None, use_cache = True
+    config: CostEstimationConfig, use_cache = True
 ) -> PhysicalDeviceCost:
 
     cost_cnot = [

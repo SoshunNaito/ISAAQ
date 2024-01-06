@@ -81,7 +81,11 @@ def ExportCost(filepath: str, deviceCost: PhysicalDeviceCost):
 	with open(filepath, "w") as f:
 		f.writelines(S)
 
-def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: bool) -> PhysicalDeviceCost:
+def PrepareCost(
+	deviceGraphName: str, deviceCostName: str, refreshCostTable: bool,
+	CostEstimationModelConfigGenerateFunc: Callable[[PhysicalDeviceGraph], CostEstimationConfig] = CommonFunctionConfig.GenerateFromGraph
+) -> PhysicalDeviceCost:
+	
 	folderPath_initial = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/initial/" + deviceCostName)
 	folderPath_learned = os.path.join(os.path.dirname(__file__), "../internal_data/device_cost/learned/" + deviceCostName)
 	filepath_initial = os.path.join(folderPath_initial, "cost_tables.txt")
@@ -95,13 +99,15 @@ def PrepareCost(deviceGraphName: str, deviceCostName: str, refreshCostTable: boo
 
 	try:
 		graph = ImportGraph(deviceGraphName)
-		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, None, ~refreshCostTable)
+		config = CostEstimationModelConfigGenerateFunc(graph)
+		deviceCost = GenerateLearnedDeviceCost(deviceCostName, graph, config, ~refreshCostTable)
 
 		ExportCost(filepath_learned, deviceCost)
 		return deviceCost
 	except:
 		graph = ImportGraph(deviceGraphName)
-		deviceCost = GenerateInitialDeviceCost(deviceCostName, graph, None, ~refreshCostTable)
+		config = CostEstimationModelConfigGenerateFunc(graph)
+		deviceCost = GenerateInitialDeviceCost(deviceCostName, graph, config, ~refreshCostTable)
 		
 		ExportCost(filepath_initial, deviceCost)
 		return deviceCost

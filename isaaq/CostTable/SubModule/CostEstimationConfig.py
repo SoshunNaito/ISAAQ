@@ -14,18 +14,21 @@ class CostEstimationConfig:
 
     def __str__(self): return self.name
 
-# for small devices (N <= 20)
+# for small devices (N <= 10)
 class FullConnectedConfig(CostEstimationConfig):
     def __init__(self, N: int):
         coefs = []
         for a in range(N ** 2):
             coefs.append([0 for b in range(N ** 2)])
             coefs[-1][a] = 1
-
         super().__init__(
             N, coefs,
             name = "Config_Full_" + str(N) + "_" + str(N ** 2)
         )
+    
+    @classmethod
+    def GenerateFromGraph(cls, graph: PhysicalDeviceGraph):
+        return cls(graph.N)
 
 # for large devices (N <= 1000)
 class CommonFunctionConfig(CostEstimationConfig):
@@ -34,11 +37,18 @@ class CommonFunctionConfig(CostEstimationConfig):
         for a in range(N):
             for b in range(N):
                 coefs.append(func(a, b))
-        
         super().__init__(
             N, coefs,
             name = "Config_Func_" + str(N) + "_" + str(len(coefs[0]))
         )
+    
+    @classmethod
+    def GenerateFromGraph(
+        cls, graph: PhysicalDeviceGraph,
+        func: Callable[[PhysicalDeviceGraph, int, int], list[float]] = None
+    ):
+        if(func == None): func = lambda G, a, b: [G.distanceTo[a][b], 1]
+        return cls(graph.N, lambda a, b: func(graph, a, b))
 
 def LoadCostEstimationConfig(filepath: str) -> CostEstimationConfig:
     with open(filepath, "r") as f:

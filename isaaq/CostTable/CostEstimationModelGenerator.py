@@ -7,26 +7,6 @@ from isaaq.CostTable.SubModule.CostEstimationConfig import *
 from isaaq.Construct.SubModule.Routing import *
 from isaaq.Construct.SubModule.RoutingCache import *
 
-def GenerateEstimationConfig(graph: PhysicalDeviceGraph) -> CostEstimationConfig:
-	if(graph.N <= 20):
-		config = FullConnectedConfig(graph.N)
-	else:
-		meanDist = 0
-		for a in range(graph.N):
-			for b in range(graph.N):
-				d = graph.distanceTo[a][b]
-				meanDist += d
-		meanDist /= (graph.N ** 2)
-
-		func = lambda a, b: [
-			graph.distanceTo[a][b] / meanDist,
-			1,
-			1 / (graph.distanceTo[a][b] + 1)
-		]
-		config = CommonFunctionConfig(graph.N, func)
-		
-	return config
-
 def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph, num_samples: int):
 	routingCache = RoutingCache(graph)
 	permutations = GenerateRandomPermutationList(graph.N, num_samples)
@@ -40,10 +20,8 @@ def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph, num_sampl
 
 def GenerateInitialCostEstimationModel(
 	deviceCostName: str, graph: PhysicalDeviceGraph,
-	config: CostEstimationConfig = None, use_cache = True
+	config: CostEstimationConfig, use_cache = True
 ) -> CostEstimationModel:
-
-	if(config == None): config = GenerateEstimationConfig(graph)
 
 	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/initial/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
@@ -73,10 +51,8 @@ def GenerateInitialCostEstimationModel(
 
 def GenerateLearnedCostEstimationModel(
 	deviceCostName: str, graph: PhysicalDeviceGraph,
-	config: CostEstimationConfig = None, use_cache = True
+	config: CostEstimationConfig, use_cache = True
 ) -> CostEstimationModel:
-
-	if(config == None): config = GenerateEstimationConfig(graph)
 
 	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/actual/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
