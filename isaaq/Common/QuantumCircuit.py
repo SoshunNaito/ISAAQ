@@ -18,6 +18,7 @@ class QuantumCircuit:
 		for Cbit in Cbits: self.AddCbits(Cbit[0], Cbit[1])
 		
 		self.gates: list[BaseGate] = []
+		self.numCXGates: int = 0
 
 	def AddQubits(self, var_name: str, var_count: int):
 		self.Qubits.append((var_name, var_count))
@@ -37,6 +38,7 @@ class QuantumCircuit:
 
 	def AddGate(self, gate: BaseGate):
 		self.gates.append(gate)
+		if(isinstance(gate, CXGate)): self.numCXGates += 1
 
 	def __str__(self):
 		s = ""

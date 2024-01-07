@@ -7,32 +7,6 @@ from isaaq.CostTable.SubModule.CostEstimationConfig import *
 from isaaq.Construct.SubModule.Routing import *
 from isaaq.Construct.SubModule.RoutingCache import *
 
-def _GenerateConfig(graph: PhysicalDeviceGraph) -> CostEstimationConfig:
-	if(graph.N <= 20):
-		config = FullConnectedConfig(graph.N)
-	elif(graph.N <= 50):
-		config = None
-		for d in range(-1, 6)[::-1]:
-			config = LocallyConnectedConfig(graph.N, d, graph)
-			if((graph.N ** 2) * config.numvars <= 200000): break
-	else:
-		meanDist = 0
-		for a in range(graph.N):
-			for b in range(graph.N):
-				d = graph.distanceTo[a][b]
-				meanDist += d
-		meanDist /= (graph.N ** 2)
-
-		config = CommonFunctionConfig(
-			graph.N,
-			lambda a, b: [
-				graph.distanceTo[a][b] / meanDist,
-				1,
-				1 / (graph.distanceTo[a][b] + 1)
-			]
-		)
-	return config
-
 def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph, num_samples: int):
 	routingCache = RoutingCache(graph)
 	permutations = GenerateRandomPermutationList(graph.N, num_samples)
@@ -46,10 +20,8 @@ def _GenerateInitialLog(filepath_log: str, graph: PhysicalDeviceGraph, num_sampl
 
 def GenerateInitialCostEstimationModel(
 	deviceCostName: str, graph: PhysicalDeviceGraph,
-	use_cache = True
+	config: CostEstimationConfig, use_cache = True
 ) -> CostEstimationModel:
-
-	config = _GenerateConfig(graph)
 
 	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/initial/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))
@@ -77,12 +49,10 @@ def GenerateInitialCostEstimationModel(
 	
 	return costEstimationModel
 
-def GenerateActualCostEstimationModel(
+def GenerateLearnedCostEstimationModel(
 	deviceCostName: str, graph: PhysicalDeviceGraph,
-	use_cache = True
+	config: CostEstimationConfig, use_cache = True
 ) -> CostEstimationModel:
-
-	config = _GenerateConfig(graph)
 
 	folderPath = os.path.join(os.path.dirname(__file__), "../internal_data/log/swap/actual/" + deviceCostName)
 	cacheFolderPath = os.path.join(folderPath, str(config))

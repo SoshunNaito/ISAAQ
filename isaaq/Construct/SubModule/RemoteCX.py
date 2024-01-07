@@ -20,7 +20,11 @@ def GetParentNodes(srcList: list[int], dst: int, graph: PhysicalDeviceGraph) -> 
 		if(parent[idx1] != -1): continue
 		if(score <= 0): break
 		parent[idx1] = idx2
-		children[idx2] |= children[idx1]
+		
+		idx = idx1
+		while(idx != -1):
+			children[parent[idx]] |= children[idx]
+			idx = parent[idx]
 
 	rootToLeaf: list[int] = []
 	q: deque[int] = deque()

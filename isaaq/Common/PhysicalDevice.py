@@ -23,6 +23,8 @@ class PhysicalDeviceGraph:
 		self.distanceTo: list[list[int]] = [[] for n in range(self.N)]
 		self.rootToLeaf: list[list[int]] = [[] for n in range(self.N)]
 		for root in range(N): self._CalcBFSTable(root)
+		if(self.parentTo[0].count(-1) != 1):
+			raise RuntimeError("The graph is not connected.")
 
 	def _CalcBFSTable(self, root: int):
 		parents = [-1] * self.N
