@@ -98,7 +98,11 @@ def ExportCircuit(QC: QuantumCircuit, filepath: str):
 			if(buf != ""):
 				if(c.isdecimal()): buf += c
 				else:
-					if(buf[0] == "Q"): out_str += QC.indexToQubit[int(buf[1:])]
+					if(buf[0] == "Q"):
+						try:
+							out_str += QC.indexToQubit[int(buf[1:])]
+						except:
+							raise RuntimeError("Error detected: " + gate.write())
 					else: out_str += QC.indexToCbit[int(buf[1:])]
 					buf = ""
 					

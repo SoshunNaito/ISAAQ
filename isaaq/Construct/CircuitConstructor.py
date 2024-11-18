@@ -47,7 +47,11 @@ def ConstructCircuit(
 		# placing gates
 		layer = mapping.layers[l]
 		gates = Placing(layer.virtualGates, layer.virtualToPhysical, mapping.physicalDevice.graph)
-		for g in gates: circuit_dst.AddGate(g)
+		for g in gates:
+			if(isinstance(g, CXGate)):
+				if(g.Qubit_src == -1 or g.Qubit_dst == -1):
+					raise Exception("Qubit index is not assigned")
+			circuit_dst.AddGate(g)
 
 		if(showConstructLog):
 			count = sum([1 if isinstance(gate, CXGate) else 0 for gate in gates])

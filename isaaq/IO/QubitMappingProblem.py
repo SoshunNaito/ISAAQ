@@ -45,7 +45,7 @@ def ImportMappingProblem(filepath: str) -> QubitMappingProblem:
 	
 	deviceGraphName = S[0].strip()
 	deviceCostName = S[1].strip()
-	device = ImportDeviceManually(deviceGraphName, deviceCostName, False)
+	device = ImportDeviceManually(deviceGraphName, deviceCostName, False, None) # GenerateFuncは呼び出されないのでNoneで大丈夫
 
 	numLayers = int(S[2].strip().split()[0])
 	layers: list[QubitMappingLayer] = []

@@ -183,7 +183,7 @@ def solve(problem: QubitMappingProblem, settings: AmplifyRuntimeSettings, id: st
 								cost_swap += x[m_l][idx_vl][idx_pl] * x[m_r][idx_vr][idx_pr] * deviceCost.cost_swap[q_pl][q_pr] * strength
 
 		cost = cost_cnot + cost_swap
-		cost = cost / cx_count
+		if(cx_count > 0): cost = cost / cx_count
 
 		info.preparing_time = int((time.time() - solve_start_time) * 1000)
 

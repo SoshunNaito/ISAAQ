@@ -52,8 +52,9 @@ def _GenerateCostTable(costEstimationModel: CostEstimationModel) -> list[list[fl
 
 def GenerateInitialDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    use_cache = True
+    config: CostEstimationConfig, use_cache = True
 ) -> PhysicalDeviceCost:
+
     cost_cnot = [
         [
             max(1, (graph.distanceTo[i][j] - 1) * 4)
@@ -62,7 +63,7 @@ def GenerateInitialDeviceCost(
         for i in range(graph.N)
     ]
     costEstimationModel = GenerateInitialCostEstimationModel(
-        deviceCostName, graph, use_cache
+        deviceCostName, graph, config, use_cache
     )
     cost_swap = _GenerateCostTable(costEstimationModel)
 
@@ -71,8 +72,9 @@ def GenerateInitialDeviceCost(
 
 def GenerateLearnedDeviceCost(
     deviceCostName: str, graph: PhysicalDeviceGraph,
-    use_cache = True
+    config: CostEstimationConfig, use_cache = True
 ) -> PhysicalDeviceCost:
+
     cost_cnot = [
         [
             max(1, (graph.distanceTo[i][j] - 1) * 4)
@@ -82,12 +84,12 @@ def GenerateLearnedDeviceCost(
     ]
 
     initialCostEstimationModel = GenerateInitialCostEstimationModel(
-        deviceCostName, graph, True
+        deviceCostName, graph, config, True
     )
-    actualCostEstimationModel = GenerateActualCostEstimationModel(
-        deviceCostName, graph, use_cache
+    learnedCostEstimationModel = GenerateLearnedCostEstimationModel(
+        deviceCostName, graph, config, use_cache
     )
-    costEstimationModel = initialCostEstimationModel + actualCostEstimationModel
+    costEstimationModel = initialCostEstimationModel + learnedCostEstimationModel
     cost_swap = _GenerateCostTable(costEstimationModel)
 
     deviceCost = PhysicalDeviceCost(deviceCostName, cost_cnot, cost_swap)
